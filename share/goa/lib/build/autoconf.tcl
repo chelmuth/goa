@@ -21,6 +21,7 @@ proc create_or_update_build_dir { } {
 	lappend cmd "LDFLAGS=$ldflags $ldlibs"
 	lappend cmd "LDLIBS=$ldlibs"
 	lappend cmd "LIBS=$ldlibs"
+	lappend cmd "CPP=${cross_dev_prefix}cpp"
 	lappend cmd "CXX=${cross_dev_prefix}g++"
 	lappend cmd "CC=${cross_dev_prefix}gcc"
 	lappend cmd "STRIP=${cross_dev_prefix}strip"
