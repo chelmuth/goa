@@ -881,6 +881,20 @@ proc exit_if_not_installed { args } {
 }
 
 
+##
+# Return true if sq is available and implements the required cli
+# 
+proc sq_available { } {
+	if {![have_installed sq]} {
+		return false }
+
+	if {[catch {exec sq --cli-version 1.2.0 help}]} {
+		return false }
+
+	return true
+}
+
+
 proc goa_git { args } {
 	return [exec -ignorestderr {*}[goa_git_cmd [list] {*}$args]]
 }

@@ -96,7 +96,7 @@ namespace eval goa {
 	##
 	# Implements 'goa add-depot-user'
 	#
-	proc add-depot-user { new_depot_user depot_url pubkey_file gpg_user_id } {
+	proc add-depot-user { new_depot_user depot_url pubkey_file user_id fingerprint } {
 
 		global config::depot_dir
 
@@ -127,9 +127,27 @@ namespace eval goa {
 		if {$pubkey_file != ""} {
 			file copy $pubkey_file $new_pubkey_file }
 
-		if {$gpg_user_id != ""} {
+		# preferably use sq, since it falls back to gpg-agent as backend
+		if {[sq_available]} {
+
+			set sq_args "--cert-grep $user_id"
+			if {$fingerprint != ""} {
+				set sq_args "--cert $fingerprint"
+			}
+			if {[catch { exec sq --cli-version 1.2.0 cert export {*}$sq_args --output $new_pubkey_file } msg]} {
+				file delete -force $new_depot_user_dir
+				exit_with_error "exporting the public key from the Sequoia keyring failed\n$msg"
+			}
+			
+		} else {
 			exit_if_not_installed gpg
-			if {[catch { exec gpg --armor --export $gpg_user_id > $new_pubkey_file } msg]} {
+
+			# gpg accepts fingerprint and user id as arguments, prefer fingerprint
+			set gpg_arg $user_id
+			if {$fingerprint != ""} {
+				set gpg_arg $fingerprint }
+
+			if {[catch { exec gpg --armor --export $gpg_arg > $new_pubkey_file } msg]} {
 				file delete -force $new_depot_user_dir
 				exit_with_error "exporting the public key from the GPG keyring failed\n$msg"
 			}

@@ -13,7 +13,9 @@ USAGE
 
 :goa add-depot-user <name> --depot-url <url> --pubkey-file <file>:
 
-:goa add-depot-user <name> --depot-url <url> --gpg-user-id <id>:
+:goa add-depot-user <name> --depot-url <url> --user-id <id>:
+
+:goa add-depot-user <name> --depot-url <url> --fingerprint <id>:
 
 
 ARGUMENTS
@@ -24,9 +26,12 @@ ARGUMENTS
 :--pubkey-file: A local file containing the ASCII-armored public key of the
   software provider.
 
-:--gpg-user-id: A GPG user ID - such as an email address or a key ID - of
+:--user-id: A user ID - such as an email address or name - of
   the software provider. This is an alternative to the *--pubkey-file*
   argument.
+
+:--fingerprint: A fingerprint of software provider's public key
+  This is an alternative to the '--pubkey-file' argument.
 
 :--depot-overwrite: By default, the command aborts if the depot already
   contains a software provider with the specified _<name>_. By specifying

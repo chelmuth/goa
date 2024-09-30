@@ -11,8 +11,10 @@ namespace eval goa {
 	namespace export update-index
 	namespace export compare-src compare-raw compare-pkg compare-api
 
+	set ::use_sq [sq_available]
+
 	proc exec_depot_tool { tool args } {
-		global verbose gaol tool_dir
+		global verbose gaol tool_dir use_sq
 		global config::depot_dir config::public_dir config::jobs
 
 		if {![file exists $public_dir]} {
@@ -28,11 +30,20 @@ namespace eval goa {
 		switch $tool {
 			dependencies { }
 			download {
-				lappend cmd --empty-gpg
+				if {!$use_sq} {
+					lappend cmd --empty-gpg }
 				lappend cmd --with-network
 			}
 			publish {
-				lappend cmd --user-gpg
+				if {$use_sq} {
+					lappend cmd --user-sq
+				} else {
+					log "  Warning: Missing 'sq' binary. Please install Sequoia PGP.\n"\
+					    "\n  Falling back to Gnupg for signing. Note that signing will"\
+					    "\n  fail in sandboxed execution unless gpg-agent is already"\
+					    "\n  running.\n"
+					lappend cmd --user-gpg
+				}
 			}
 		}
 

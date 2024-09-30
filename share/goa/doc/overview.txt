@@ -274,11 +274,19 @@ Commands
 
   This command implies the *depot-dir* command.
 
-:goa add-depot-user <name> --depot-url <url> --gpg-user-id <id>:
+:goa add-depot-user <name> --depot-url <url> --user-id <id>:
   Make a new depot user known at a Genode depot as software source
-  by specifying a URL and the public key as GPG key ID, i.e., the
-  email address. This command works only if the GPG keyring already
-  contains the specified user ID.
+  by specifying a URL and the public key as an email address. This command
+  works only if the keyring (Sequoia or GnuPG) already contains the
+  specified user ID.
+
+  This command implies the *depot-dir* command.
+
+:goa add-depot-user <name> --depot-url <url> --fingerprint <id>:
+  Make a new depot user known at a Genode depot as software source
+  by specifying a URL and the public key fingerprint
+  This command works only if the keyring (Sequoia or GnuPG) already
+  contains the specified fingerprint.
 
   This command implies the *depot-dir* command.
 

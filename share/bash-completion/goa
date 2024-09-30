@@ -13,11 +13,11 @@ __goa()
     run_commands="run|run-dir|backtrace"
     depot_opts="--depot-user --depot-overwrite --depot-retain"
     run_opts="--run-as --target"
-    user_opts="--depot-url --gpg-user-id --pubkey-file"
+    user_opts="--depot-url --user-id --fingerprint --pubkey-file"
 
     globalopts="--arch --rebuild --debug --warn-strict --no-warn-strict --with-backtrace -C --license --versions-from-genode-dir --depot-dir --public-dir --contrib-dir --build-dir --abi-dir --bin-dir --dbg-dir --run-dir --common-var-dir --verbose -r --jobs --cross-dev-prefix --ld-march --olevel --search-dir --install-dir --hid --no-hid --update-index --keep-going --only-tests"
 
-    stropts="--depot-url|--gpg-user-id|--depot-user|--ld-march|--run_as"
+    stropts="--depot-url|--user-id|--fingerprint|--depot-user|--ld-march|--run_as"
     fileopts="--license|--pubkey-file|--cross-dev-prefix"
     diropts="-C|--versions-from-genode-dir|--depot-dir|--public-dir|--contrib-dir|--build-dir|--abi-dir|--bin-dir|--dbg-dir|--run-dir|--common-var-dir|--search-dir|--install-dir"
     targetvals="linux sculpt"

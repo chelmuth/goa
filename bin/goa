@@ -94,7 +94,7 @@ if {$perform(depot-dir)} {
 
 if {$perform(add-depot-user)} {
 	goa add-depot-user $args(new_depot_user) $args(depot_url) \
-	                   $args(pubkey_file) $args(gpg_user_id)
+	                   $args(pubkey_file) $args(pgp_user_id) $args(fingerprint)
 	exit
 }
 

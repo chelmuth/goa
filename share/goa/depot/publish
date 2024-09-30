@@ -93,20 +93,17 @@ index_missing_error:
 # Generate compressed and signed archives and index files
 #
 
-include $(DEPOT_TOOL_DIR)/mk/gpg.inc
+include $(DEPOT_TOOL_DIR)/mk/pgp.inc
 
-MISSING_PUBKEY_FILES := $(sort \
-                           $(foreach A,$(ARCHIVES),\
-                              $(if $(call pubkey_path,$A),,\
-                                 $(call pubkey_filename,$A))))
-
-_gpg_sign_target = $(GPG) --detach-sign --digest-algo SHA256 \
-                          --batch --yes --no-tty --use-agent \
-                          --local-user $(call pubkey_id,$*) --output $@ < $< || \
-                   ( rm -f $@; false )
+# prompt for secret key passwords (when using Sequoia)
+_ARCHIVE_USERS := $(foreach A,$(ARCHIVES),$(call archive_user,$(A)))
+_ARCHIVE_USERS += $(foreach I,$(INDEX_FILES),$(call archive_user,$(I)))
+$(foreach U,$(sort $(_ARCHIVE_USERS)),\
+   $(if $(call pubkey_path,$(U)),\
+        $(eval $(call unlock_user_key,$(U)))))
 
 $(PUBLIC_DIR)/%.xz.sig : $(PUBLIC_DIR)/%.xz
-	$(VERBOSE)$(_gpg_sign_target)
+	$(VERBOSE)$(sign_target)
 
 .PRECIOUS: $(TARGETS:.xz.sig=.xz)
 .NOTPARALLEL: $(TARGETS:.xz.sig=.xz)
