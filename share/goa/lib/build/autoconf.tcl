@@ -3,7 +3,7 @@ proc create_or_update_build_dir { } {
 
 	mirror_source_dir_to_build_dir
 
-	global cppflags cflags cxxflags ldflags ldlibs_common ldlibs_exe ldlibs_so api_dirs
+	global cppflags cflags cxxflags ldflags ldflags_so ldlibs_common ldlibs_exe ldlibs_so api_dirs
 	global config::build_dir config::cross_dev_prefix config::project_name
 	global config::project_dir
 
@@ -32,6 +32,16 @@ proc create_or_update_build_dir { } {
 		cd $orig_pwd
 	}
 
+	# remove "-Wl," and GCC-specific flags
+	set link_spec_exe [string map {"-Wl," "" "-nostartfiles" "" "-nodefaultlibs" ""} "$ldflags $ldlibs_common $ldlibs_exe"]
+	set link_spec_so [string map {"-Wl," "" "-nostartfiles" "" "-nodefaultlibs" ""} "$ldflags_so $ldlibs_common $ldlibs_so"]
+
+	set link_spec_fd [open "$build_dir/link_spec" w]
+	puts $link_spec_fd "*link:"
+	puts $link_spec_fd "+ %{!shared: $link_spec_exe} \\"
+	puts $link_spec_fd "%{shared: $link_spec_so}"
+	close $link_spec_fd
+
 	set     cmd [goa::sandboxed_build_command]
 
 	lappend cmd "./configure"
@@ -40,18 +50,17 @@ proc create_or_update_build_dir { } {
 	lappend cmd "CPPFLAGS=$cppflags"
 	lappend cmd "CFLAGS=$cflags"
 	lappend cmd "CXXFLAGS=$cxxflags"
-	lappend cmd "LDFLAGS=$ldflags $ldlibs_common"
-	lappend cmd "LDLIBS=$ldlibs_common $ldlibs_exe"
-	lappend cmd "LDLIBS_SHARED=$ldlibs_common $ldlibs_so"
-	lappend cmd "LIBS=$ldlibs_common $ldlibs_exe"
-	lappend cmd "CXX=${cross_dev_prefix}g++"
-	lappend cmd "CC=${cross_dev_prefix}gcc"
+	lappend cmd "CXX=${cross_dev_prefix}g++ -specs $build_dir/link_spec -nostartfiles -nodefaultlibs"
+	lappend cmd "CC=${cross_dev_prefix}gcc -specs $build_dir/link_spec -nostartfiles -nodefaultlibs"
 	lappend cmd "STRIP=${cross_dev_prefix}strip"
 	lappend cmd "RANLIB=${cross_dev_prefix}ranlib"
 	lappend cmd "AR=${cross_dev_prefix}ar"
 	lappend cmd "AS=${cross_dev_prefix}as"
 	lappend cmd "PKG_CONFIG_LIBDIR=''"
 	lappend cmd "PKG_CONFIG_PATH=[join ${api_dirs} ":"]"
+
+	# keep LDLIBS_SHARED for backward compatibility (-shared is replaced by specs)
+	lappend cmd "LDLIBS_SHARED=-shared"
 
 	#
 	# Some autoconf projects (e.g. OpenSC) unconditionally do checks
@@ -84,8 +93,6 @@ proc build { } {
 
 	# pass variables that are not fully handled by configure scripts
 	lappend cmd make -C $build_dir
-	lappend cmd "LDLIBS=$ldlibs_common $ldlibs_exe"
-	lappend cmd "LDLIBS_SHARED=$ldlibs_common $ldlibs_so"
 	lappend cmd "DESTDIR=[file join $build_dir install]"
 	lappend cmd "-j$jobs"
 
