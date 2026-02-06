@@ -48,7 +48,7 @@ Installation
 
 # Clone the Goa repository:
 
-  ! git clone https://github.com/genodelabs/goa.git
+  ! git clone https://codeberg.org/genodelabs/goa.git
 
   The following steps refer to the directory of the clone as '<goa-dir>'.
 
