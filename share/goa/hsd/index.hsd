@@ -1,0 +1,31 @@
+schema index
+
++ type any       | : .*
++ type arch      | : x86_64|arm_v8a
+
++ category archive
+  + node pkg
+    + attr path | type: any
+    + attr info | type: any
+    + attr arch | type: arch | default:
+  + node src
+    + attr path | type: any
+    + attr info | type: any
+    + attr arch | type: arch | default:
+  + node api
+    + attr path | type: any
+    + attr info | type: any
+    + attr arch | type: arch | default:
+
++ category index
+  + node index
+    + attr name | type: any
+    + attr arch | type: arch | default:
+    + node | category: archive
+    + node | category: index
+
++ node supports | optional: no
+  + attr arch | type: arch
++ node | category: index
++ node | category: archive
+-

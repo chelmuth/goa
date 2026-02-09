@@ -30,11 +30,7 @@ namespace eval goa {
 		if {![file exists [file join $hsd_dir "$binary_name.hsd"]]} {
 			return }
 
-		try {
-			hid tool $config check --hsd-dir $hsd_dir --schema $binary_name
-		} trap CHILDSTATUS { msg } {
-			exit_with_error "Schema validation failed for $binary_name:\n$msg"
-		} on error { msg } { error $msg $::errorInfo }
+		hid check $config $binary_name $hsd_dir
 
 		# check sub inits
 		if {$binary_name == "init"} {
@@ -68,7 +64,7 @@ namespace eval goa {
 
 	proc run-dir { } {
 
-		global tool_dir args
+		global args
 		global config::project_dir config::run_dir config::dbg_dir config::bin_dir
 		global config::depot_dir config::debug config::hsd_dir config::hid
 	
@@ -99,15 +95,11 @@ namespace eval goa {
 			exit_with_error "missing runtime configuration at: $runtime_file" }
 	
 		# check runtime file against hsd
-		try {
-			hid tool $runtime_file check --hsd-dir [file join $tool_dir hsd] --schema runtime
-		} trap CHILDSTATUS { msg } {
-			exit_with_error "Schema validation failed for $runtime_file:\n$msg"
-		} on error { msg } { error $msg $::errorInfo }
+		hid check $runtime_file "runtime"
 
 		# check syntax config files at raw/ against
 		foreach config_file [glob -nocomplain [file join raw *.config]] {
-			query validate-syntax $config_file }
+			hid check $config_file "" }
 		
 		#
 		# Partially prepare depot before calling 'generate_runtime_config'.

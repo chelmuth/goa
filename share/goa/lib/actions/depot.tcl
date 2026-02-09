@@ -714,12 +714,7 @@ namespace eval goa {
 		# check runtime file against hsd
 		set runtime_file [file join $pkg_dir runtime]
 		if {[file exists $runtime_file]} {
-			try {
-				hid tool $runtime_file check --hsd-dir [file join $tool_dir hsd] --schema runtime
-			} trap CHILDSTATUS { msg } {
-				exit_with_error "Schema validation failed for $runtime_file:\n$msg"
-			} on error { msg } { error $msg $::errorInfo }
-		}
+			hid check $runtime_file "runtime" }
 
 		set runtime_archives [versioned_runtime_archives $pkg]
 
@@ -861,7 +856,7 @@ namespace eval goa {
 
 		set index_file [file join $project_dir index]
 		if {[file exists $index_file] && [file isfile $index_file]} {
-			query validate-syntax $index_file
+			hid check $index_file "index"
 	
 			# check index file for any missing archives
 			foreach { archive archs } [from-index $index_file "pkg" "src" "api"] {
@@ -907,6 +902,7 @@ namespace eval goa {
 			set dst_file [prepare_project_archive_directory index]
 			if {$dst_file != ""} {
 				augment_index_versions $index_file $dst_file
+				hid check $dst_file "index"
 				log "exported $dst_file"
 			}
 		}

@@ -7,17 +7,8 @@
 namespace eval query {
 
 	namespace ensemble create
-	namespace export validate-syntax
 	namespace export attributes attribute optional-attribute
 	namespace export node optional-node
-
-	proc validate-syntax { data } {
-		try {
-			hid tool $data check
-		} trap CHILDSTATUS { msg } {
-			exit_with_error "invalid syntax in $data:\n $msg"
-		} on error { msg } { error $msg $::errorInfo }
-	}
 
 	##
 	# query 'data' for attributes described by 'path'

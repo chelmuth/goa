@@ -10,6 +10,7 @@ namespace eval hid {
 
 	namespace ensemble create
 	namespace export tool
+	namespace export check
 	namespace export format-xml format as_string
 	namespace export valid empty first
 	namespace export create append indent
@@ -71,6 +72,28 @@ namespace eval hid {
 		}
 
 		return $output
+	}
+
+	# validation of syntax and schema
+	proc check { input schema { dir "" } } {
+		global tool_dir
+		if {$dir == ""} { set dir [file join $tool_dir hsd] }
+
+		try {
+			if {$schema == ""} {
+				hid tool $input check
+			} else {
+				hid tool $input check --hsd-dir $dir --schema $schema
+			}
+		} trap CHILDSTATUS { msg } {
+			if {[file exists $input]} {
+				exit_with_error "Schema validation failed for $input:\n$msg"
+			} elseif {$schema != ""} {
+				exit_with_error "Schema validation failed for $schema:\n$msg"
+			} else {
+				exit_with_error "Syntax error in\n$input\n$msg"
+			}
+		} on error { msg } { error $msg $::errorInfo }
 	}
 
 	# format 'input' to XML
