@@ -625,7 +625,7 @@ namespace eval goa {
 
 			# sanity check for whether genode_rel.ld was used
 			set expected_phdrs {LOAD r-x LOAD rw- DYNAMIC rw- EH_FRAME r--}
-			set phdrs [split [exec_tool_chain objdump -p $library | grep -E "(off|filesz)"] \n]
+			set phdrs [split [string trim [exec_tool_chain objdump -p $library | grep -E "\\s+(off|filesz)\\s+"]] \n]
 			foreach {off filesz} $phdrs {exp_type exp_flags} $expected_phdrs {
 				set type  [lindex $off 0]
 				set flags [lindex $filesz end]
