@@ -14,18 +14,18 @@ will be exported/published.
 DESCRIPTION
 ###########
 
-The _index_ file contains XML data with an _<index>_ node at top level.
+The _index_ file contains HID data with an _index_ node at top level.
 Each index file features a declaration of the CPU architectures supported by
 the package provider. Sculpt OS evaluates this to decide whether to display
 the depot index.
 
-! <index>
-!   <supports arch="x86_64"/>
-!   <supports arch="arm_v8a"/>
+! index
+! + supports | arch: x86_64
+! + supports | arch: arm_v8a
 !  ...
 
-An _index_ file further contains an arbitrary number of _<pkg>_, _<src>_
-or _<api>_ nodes which
+An _index_ file further contains an arbitrary number of _pkg_, _src_
+or _api_ nodes which
 define the archives provided in this depot. Such a node contains the
 following attributes:
 
@@ -41,24 +41,30 @@ following attributes:
 :arch: The optional _arch_ attribute can be used to restrict the supported
   CPU architectures for this particular package.
 
-A depot index may be structured by nesting named _<index>_ nodes and thereby
+A depot index may be structured by nesting named _index_ nodes and thereby
 divide the provided packages into categories, e.g.:
 
-! <index>
-!   <supports arch="x86_64"/>
-!   <supports arch="arm_v8a"/>
+! index
+! + supports | arch: x86_64
+! + supports | arch: arm_v8a
 !
-!   <index name="GUI" arch="x86_64">
-!     <pkg path="sticks_blue_backdrop" info="default desktop background"/>
-!     <pkg path="themed_wm"            info="ready-to-use window manager"/>
-!   </index>
+! + index GUI | arch: x86_64
+!   + pkg
+!   |     path: sticks_blue_backdrop
+!   |     info: default desktop background
+!   + pkg
+!   |     path: themed_wm
+!   |     info: ready-to-use window manager
 !
-!   <index name="Tools">
-!     <pkg path="system_shell"    info="command-line interface to the system"/>
-!     <pkg path="system_clock-pc" info="real-time-clock service" arch="x86_64"/>
-!   </index>
-!
-! </index>
+! + index Tools
+!   + pkg
+!   |     path: system_shell
+!   |     info: command-line interface to the system
+!   + pkg
+!   |     path: system_clock-pc
+!   |     info: real-time-clock service
+!   |     arch: x86_64
+! -
 
 As shown in the above example, each sub-index can be restricted to a particular
 CPU architecture.

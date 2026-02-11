@@ -17,37 +17,37 @@ linux
 
 This target uses base-linux to execute the project on top of the running Linux
 kernel. The _linux_ target evaluates the following services mentioned in
-the _runtime_ file's <requires> node:
+the _runtime_ file's _requires_ node:
 
-:<event/>:
+:event:
   Any required _Event_ service is routed to a nitpicker component.
 
-:<capture/>:
+:capture:
   Any required _Capture_ service is routed to a nitpicker component.
 
-:<gui/>:
+:gui:
   Any required _Gui_ service is routed to a nitpicker component.
 
-:<timer/>:
+:timer:
   Any required _Timer_ service is routed to a timer component.
 
-:<rm/>:
+:rm:
   Any required _RM_ service is routed to core.
 
-:<trace/>:
+:trace:
   Any required _TRACE_ service is routed to core.
 
-:<rtc/>:
+:rtc:
   Any required _Rtc_ service is routed to a linux_rtc component.
 
-:<file_system label="<label>" writeable="no"/>:
+:file_system | label: <label> | writeable: no:
   If <label> equals "fonts", a _File_system" requirement is routed to a
   fonts_fs component.
   For any other required _File_system_ a separate lx_fs component is added to
   the runtime and configured to provide access to the host directory
   _var/projects/<project_name>/fs/<label>_.
 
-:<nic label="<label>" tap_name="<tap_name>"/>:
+:nic | label: <label> | tap_name: <tap_name>:
   Required _Nic_ services are tied to a tap device on the host by adding a
   linux_nic and a nic_router to the runtime. The linux_nic is configured
   to use the tap device _<tap_name>_ (if provided, otherwise _tap0_) and
@@ -58,46 +58,46 @@ the _runtime_ file's <requires> node:
   device in use, only a single pair of linux_nic and nic_router will be
   instantiated.
 
-  A _<nic>_ node may contain an arbitrary number of _<tcp-forward>_ and
-  _<udp-forward>_ nodes, which are added to the Nic router_s uplink domain.
-  Any additional _<policy>_ and _<domain>_ nodes are added to the Nic router's.
+  A _nic_ node may contain an arbitrary number of _tcp-forward_ and
+  _udp-forward_ nodes, which are added to the Nic router_s uplink domain.
+  Any additional _policy_ and _domain_ nodes are added to the Nic router's.
   config.
 
-:<gpu/>:
+:gpu:
   Any required _Gpu_ service is routed to a black-hole component.
 
-:<rom label="mesa_gpu.lib.so"/>:
+:rom | label: mesa_gpu.lib.so:
   The _mesa_gpu.lib.so_ _ROM_ requirement is routed to the
   _mesa_gpu-softpipe.lib_ ROM module.
 
-:<rom label="clipboard"/>:
+:rom | label: clipboard:
   The clipboard _ROM_ requirement is routed to a report_rom component.
 
-:<report label="<label>"/>:
+:report | label: <label>:
   If <label> equals "clipboard", a _Report_ requirement is routed to a report_rom
   component. For any other label, the Report service is routed to a black-hole
   component.
 
-:<audio_in/> and <audio_out/>:
+:audio_in and audio_out:
   Any required _Audio_in_ and _Audio_out_ service is routed to a black-hole
   component. Note: These services are deprecated since 24.04 and will be removed
   in the future.
 
-:<play/> and <record/>:
+:play and record:
   Any required _Play_ and _Record_ service is routed to a black-hole
   component.
 
-:<usb/>:
+:usb:
   Any required _Usb_ service is routed to a black-hole component.
 
-:<uplink/>:
+:uplink:
   Any required _Uplink_ service is routed to a black-hole component.
 
 
 The _linux_ target evaluates the following services mentioned in
-the _runtime_ file's <provides> node:
+the _runtime_ file's _provides_ node:
 
-:<uplink label="<tap-name>"/>:
+:uplink | label: <tap-name>:
   For the first provided _Uplink_ service a linux_nic component is added to
   the runtime and configured to use the tap device <tap-name>.
 
@@ -147,7 +147,7 @@ may set in your goarc file or provide as command-line arguments
 The _sculpt_ target routes all runtime-required services to the parent except
 for the following:
 
-:<file_system label="fonts"/>:
+:file_system | label="fonts":
   This requirement is routed to a dedicates fonts_fs component.
 
 
