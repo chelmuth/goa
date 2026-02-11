@@ -107,7 +107,12 @@ namespace eval goa {
 		#
 		set binary_archives [binary_archives [apply_versions $runtime_archives]]
 		prepare_depot_with_archives $binary_archives
-	
+		
+		#
+		# reverse runtime archives to maintain preference of archives from
+		# top of the 'archives' file over archives added by Goa
+		# 
+		set runtime_archives [lreverse $runtime_archives]
 		set rom_modules { }
 		generate_runtime_config $runtime_file runtime_archives rom_modules
 	
@@ -116,8 +121,11 @@ namespace eval goa {
 		prepare_depot_with_archives $binary_archives
 		if { $debug } {
 			prepare_depot_with_debug_archives $binary_archives }
-	
+
 		update_depot_roms $runtime_archives rom_modules
+
+		# re-reverse runtime archives
+		set runtime_archives [lreverse $runtime_archives]
 	
 		# update 'binary_archives' with information available after installation
 		set binary_archives [binary_archives [apply_versions $runtime_archives]]
