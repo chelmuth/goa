@@ -125,8 +125,15 @@ foreach device [$template_doc selectNodes //device] {
 }
 
 
-set output_fd [open $output w+]
+set output_fd [open $output.xml w+]
 puts $output_fd [$out_doc asXML]
 close $output_fd
+
+set script_path [file dirname [file normalize [info script]]]
+set output_fd [open $output w+]
+exec [file join $script_path .. hid] --import-xml format $output.xml >@$output_fd
+close $output_fd
+
+file delete $output.xml
 
 exit 0
