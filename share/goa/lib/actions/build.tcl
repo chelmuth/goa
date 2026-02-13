@@ -754,7 +754,7 @@ namespace eval goa {
 				if {![file exists $target_dir]} {
 					file mkdir $target_dir }
 
-				file link $link_target $file
+				file link $link_target [file fullnormalize $file]
 			}
 		}
 	}

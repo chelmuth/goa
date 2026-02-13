@@ -174,6 +174,9 @@ namespace eval ::config {
 				_validate_path_arg $allowed_paths 0 $path
 				return $path
 			}
+			safe-join {
+				return [file normalize [file join {*}$args]]
+			}
 
 			split       -
 			dirname     -

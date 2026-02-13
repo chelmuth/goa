@@ -117,7 +117,7 @@ namespace eval goa {
 
 			foreach path [glob -nocomplain $contrib_dir/*] {
 				if {$path != $contrib_cache_dir} {
-					file delete -force $path }
+					file delete -force [file fullnormalize $path] }
 			}
 
 			file mkdir $contrib_dir

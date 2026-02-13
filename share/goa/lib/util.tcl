@@ -218,6 +218,7 @@ proc read_file_content { path } {
 
 proc read_file_content_as_list { path } {
 
+	set path [file fullnormalize $path]
 	set lines [split [read_file_content $path] "\n"]
 	set result { }
 	foreach line $lines {
@@ -377,7 +378,7 @@ proc find_project_dir_for_archive { type name } {
 #
 proc project_version_from_file { dir } {
 
-	set version_file [file join $dir version]
+	set version_file [file safe-join $dir version]
 	if {[file exists $version_file]} {
 		set version_from_file [string trim [read_file_content $version_file]]
 
@@ -401,6 +402,7 @@ proc project_version_from_file { dir } {
 proc exported_project_archive_version { dir archive } {
 	global argv0
 
+	set dir [file fullnormalize $dir]
 	try {
 		return [project_version_from_file $dir]
 	} trap NOT_FOUND {} {
@@ -636,8 +638,8 @@ proc runtime_files { archive_list } {
 		archive_parts $archive user type name version
 
 		if {$type == "pkg"} {
-			set pkg_archives_file [file join $depot_dir $archive archives]
-			set pkg_runtime_file  [file join $depot_dir $archive runtime]
+			set pkg_archives_file [file safe-join $depot_dir $archive archives]
+			set pkg_runtime_file  [file safe-join $depot_dir $archive runtime]
 
 			if {[file exists $pkg_archives_file] && [file exists $pkg_runtime_file]} {
 
@@ -737,7 +739,7 @@ proc api_archive_dir { api_name } {
 	foreach archive [goa used_apis] {
 		archive_parts $archive user type name version
 		if {$version != "" && $name == $api_name} {
-			return [file join $depot_dir $archive] }
+			return [file safe-join $depot_dir $archive] }
 	}
 	exit_with_error "could not find matching $api_name API in depot"
 }
@@ -764,7 +766,7 @@ proc symlink_directory_content { file_whitelist from_dir to_dir } {
 		if {[file exists $symlink_path]} {
 			file delete $symlink_path }
 
-		file link $symlink_path $from_file
+		file link $symlink_path [file fullnormalize $from_file]
 	}
 }
 
@@ -799,7 +801,7 @@ proc mirror_source_dir_to_build_dir { } {
 	}
 
 	foreach symlink $symlinks {
-		set target [file join $project_dir src $symlink]
+		set target [file safe-join $project_dir src $symlink]
 		set path   [file join $build_dir $symlink]
 
 		if {[file exists $path]} {

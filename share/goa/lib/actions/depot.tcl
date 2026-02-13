@@ -58,6 +58,8 @@ namespace eval goa {
 		global config::common_var_dir config::var_dir verbose
 		global config::search_dir
 
+		set dir [file fullnormalize $dir]
+
 		set orig_pwd [pwd]
 		cd $search_dir
 
@@ -338,9 +340,9 @@ namespace eval goa {
 		if {$type != "pkg" && $type != "bin" && $type != "src"} {
 			exit_with_error "No info for archive type '$type' available." }
 
-		set archive_path [file join $depot_dir $versioned_archive]
+		set archive_path [file safe-join $depot_dir $versioned_archive]
 		if {$type == "bin"} {
-			set archive_path [file join $depot_dir $user src $name $vers] }
+			set archive_path [file safe-join $depot_dir $user src $name $vers] }
 
 		set find_cmd [list find $archive_path -type f -name README]
 		if {$type == "pkg"} {
@@ -455,7 +457,7 @@ namespace eval goa {
 	
 		set policy [depot_policy]
 		set archive [versioned_project_archive $type]
-		set dst_dir "[file join $depot_dir $archive]"
+		set dst_dir [file safe-join $depot_dir $archive]
 	
 		if {[file exists $dst_dir]} {
 			if {$policy == "overwrite"} {
@@ -485,7 +487,7 @@ namespace eval goa {
 	proc license_file { } {
 		global config::project_dir config::license
 	
-		set local_license_file [file join $project_dir LICENSE]
+		set local_license_file [file safe-join $project_dir LICENSE]
 		if {[file exists $local_license_file]} {
 			return $local_license_file }
 	
@@ -584,6 +586,8 @@ namespace eval goa {
 			if {$dst_dir == ""} {
 				set dst_dir [prepare_project_archive_directory api]
 				set silent 0
+			} else {
+				set dst_dir [file fullnormalize $dst_dir]
 			}
 
 			if {$dst_dir != ""} {
@@ -619,7 +623,7 @@ namespace eval goa {
 	
 				file mkdir [file join $dst_dir lib]
 				if {[file exists [file join $project_dir "symbols"]]} {
-					file copy [file join $project_dir "symbols"] [file join $dst_dir lib]
+					file copy [file fullnormalize [file join $project_dir "symbols"]] [file join $dst_dir lib]
 				}
 
 				file copy $license_file [file join $dst_dir LICENSE]
@@ -642,7 +646,7 @@ namespace eval goa {
 			if {$dst_dir != ""} {
 				set files [exec find $raw_dir -not -type d -and -not -name "*~" -and -not -type l]
 				foreach file $files {
-					file copy $file [file join $dst_dir [file tail $file]] }
+					file copy [file fullnormalize $file] [file join $dst_dir [file tail $file]] }
 	
 				log "exported $dst_dir"
 			}
@@ -671,11 +675,13 @@ namespace eval goa {
 			if {$dst_dir == ""} {
 				set dst_dir [prepare_project_archive_directory src]
 				set silent 0
+			} else {
+				set dst_dir [file fullnormalize $dst_dir]
 			}
 
 			if {$dst_dir != ""} {
 				foreach file $files {
-					file copy $file [file join $dst_dir [file tail $file]] }
+					file copy [file fullnormalize $file] [file join $dst_dir [file tail $file]] }
 	
 				file copy $license_file [file join $dst_dir LICENSE]
 	
@@ -721,13 +727,15 @@ namespace eval goa {
 		if {$dst_dir == ""} {
 			set dst_dir [prepare_project_archive_directory pkg]
 			set silent 0
+		} else {
+			set dst_dir [file fullnormalize $dst_dir]
 		}
 
 		if {$dst_dir != ""} {
 			# copy content from pkg directory as is
 			set files [exec find $pkg_dir -not -type d -and -not -name "*~" -and -not -type l]
 			foreach file $files {
-				file copy $file [file join $dst_dir [file tail $file]] }
+				file copy [file fullnormalize $file] [file join $dst_dir [file tail $file]] }
 
 			# overwrite exported 'archives' file with specific versions
 			if {[llength $runtime_archives] > 0} {
@@ -879,7 +887,7 @@ namespace eval goa {
 
 				# download or export missing pkg archives
 				if {$type == "pkg"} {
-					set dst_dir "[file join $depot_dir $versioned_archive]"
+					set dst_dir [file join $depot_dir $versioned_archive]
 					if {$dst_dir != "" && ![file exists $dst_dir]} {
 
 						foreach archive_arch $archs {
@@ -1147,7 +1155,7 @@ namespace eval goa {
 		if {[file exists $raw_dir] && [file isdirectory $raw_dir]} {
 			set other_archive [versioned_project_archive raw]
 			download_if_missing $other_archive
-			set other_dir [file join $depot_dir $other_archive]
+			set other_dir [file safe-join $depot_dir $other_archive]
 
 			set status [exec_status [list diff -qNr raw $other_dir > /dev/null]]
 			if {$status != 0} {
@@ -1171,7 +1179,7 @@ namespace eval goa {
 		if {[file exists $src_dir] && [file isdirectory $src_dir]} {
 			set other_archive [versioned_project_archive src]
 			download_if_missing $other_archive
-			set other_dir [file join $depot_dir $other_archive]
+			set other_dir [file safe-join $depot_dir $other_archive]
 
 			set dst_dir [file join $depot_dir _ src $project_name compare]
 			file delete -force $dst_dir
@@ -1201,7 +1209,7 @@ namespace eval goa {
 
 		set other_archive [versioned_project_archive pkg]
 		download_if_missing $other_archive
-		set other_dir [file join $depot_dir $other_archive]
+		set other_dir [file safe-join $depot_dir $other_archive]
 		lappend exported_archives $other_archive
 
 		set dst_dir [file join $depot_dir _ pkg $project_name compare]
@@ -1231,7 +1239,7 @@ namespace eval goa {
 		if {[file exists $api_dir] && [file isdirectory $api_dir]} {
 			set other_archive [versioned_project_archive api]
 			download_if_missing $other_archive
-			set other_dir [file join $depot_dir $other_archive]
+			set other_dir [file safe-join $depot_dir $other_archive]
 
 			set dst_dir [file join $depot_dir _ api $project_name compare]
 			file delete -force $dst_dir

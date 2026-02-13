@@ -50,6 +50,7 @@ namespace eval hid {
 		set cmd [file join $tool_dir hid]
 
 		if {[file exists $input]} {
+			set input [file fullnormalize $input]
 			if {[_detect_format $input] == "xml"} {
 				lappend cmd --import-xml }
 		} else {

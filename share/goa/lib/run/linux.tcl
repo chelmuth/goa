@@ -215,7 +215,7 @@ proc bind_required_services { &services } {
 
 		global config::run_dir config::var_dir
 		# link all file systems to run_dir
-		file link -symbolic "$run_dir/fs" "$var_dir/fs"
+		file link -symbolic "$run_dir/fs" [file safe-join $var_dir fs]
 
 		unset services(file_system)
 	}
@@ -309,7 +309,7 @@ proc bind_required_services { &services } {
 
 			# link the rom directory
 			global config::run_dir config::var_dir
-			file link -symbolic "$run_dir/rom" "$var_dir/rom"
+			file link -symbolic "$run_dir/rom" [file safe-join $var_dir rom]
 		}
 	}
 
@@ -583,7 +583,7 @@ proc _instantiate_file_system { name label writeable &start_nodes &archives &mod
 	                       "    + service ROM | + parent"
 
 	# create folder in var_dir
-	set fs_dir "$var_dir/fs/$label"
+	set fs_dir [file safe-join $var_dir fs $label]
 	if {![file isdirectory $fs_dir]} {
 		log "creating file-system directory $fs_dir"
 		file mkdir $fs_dir
@@ -625,7 +625,7 @@ proc _instantiate_rom_provider { &start_nodes &archives &modules } {
 	                       "    + service ROM | + parent"
 
 	# create folder in var_dir
-	set fs_dir "$var_dir/rom"
+	set fs_dir [file safe-join $var_dir rom]
 	if {![file isdirectory $fs_dir]} {
 		log "creating file-system directory $fs_dir"
 		file mkdir $fs_dir
