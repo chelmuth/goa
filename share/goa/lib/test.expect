@@ -11,6 +11,7 @@
 #
 set tests {
 	hello_make
+	multiple_hello_make
 	hello_posix
 	hello_meson
 	hello_rust:60
@@ -30,21 +31,22 @@ set tests {
 #
 # expected output
 #
-set test_output(hello_make)       {\[init -> hello_make\] Hello}
-set test_output(hello_posix)      {\[init -> hello_posix\] Hello POSIX}
-set test_output(hello_meson)      {\[init -> hello_meson\] Hello Meson: 42}
-set test_output(cmake_step2)      {\[init -> cmake_step2\] The square root of 24 is 4.89898}
-set test_output(cmake_library)    {libforty_two.lib.so}
-set test_output(qt5_core)         {\[init -> qt5_core\] Test done.}
-set test_output(hello_rust)       {\[init -> hello_rust\] Hello Genode Rust world!}
-set test_output(cmake_sdl2)       {\[init\] child "cmake_sdl2" exited with exit value 0}
-set test_output(vfs/1-fs_query)   {\[init -> 1-fs_query -> report_rom\]   </listing>}
-set test_output(vfs/2-import)     {child "2-import" exited with exit value 0}
-set test_output(vfs/3-vfs_server) {<file name="verbose" size="2">no</file>}
-set test_output(vfs/4-rump_ext2)  {Hello!Hello!}
-set test_output(vfs/5-pipe)       {Hi, this is a pipe test!}
-set test_output(vfs/6-terminal)   {Hi, this is a terminal test!}
-set test_output(vfs/7-lwip)       {Received message with: Hi, there!}
+set test_output(hello_make)          {\[init -> hello_make\] Hello}
+set test_output(multiple_hello_make) {\[init -> multiple_hello_make -> two\] Hello}
+set test_output(hello_posix)         {\[init -> hello_posix\] Hello POSIX}
+set test_output(hello_meson)         {\[init -> hello_meson\] Hello Meson: 42}
+set test_output(cmake_step2)         {\[init -> cmake_step2\] The square root of 24 is 4.89898}
+set test_output(cmake_library)       {libforty_two.lib.so}
+set test_output(qt5_core)            {\[init -> qt5_core\] Test done.}
+set test_output(hello_rust)          {\[init -> hello_rust\] Hello Genode Rust world!}
+set test_output(cmake_sdl2)          {\[init\] child "cmake_sdl2" exited with exit value 0}
+set test_output(vfs/1-fs_query)      {\[init -> 1-fs_query -> report_rom\]   </listing>}
+set test_output(vfs/2-import)        {child "2-import" exited with exit value 0}
+set test_output(vfs/3-vfs_server)    {<file name="verbose" size="2">no</file>}
+set test_output(vfs/4-rump_ext2)     {Hello!Hello!}
+set test_output(vfs/5-pipe)          {Hi, this is a pipe test!}
+set test_output(vfs/6-terminal)      {Hi, this is a terminal test!}
+set test_output(vfs/7-lwip)          {Received message with: Hi, there!}
 
 
 proc _find_tool_dir { } {
