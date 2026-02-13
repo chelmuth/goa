@@ -49,7 +49,7 @@ EXAMPLES
 ########
 
 You can find a minimalistic example at
-_examples/hello_make/pkg/hello_make/runtime_. The scenario merely consists
+_examples/hello_make/pkg/runtime_. The scenario merely consists
 of a single component with an empty configuration and no required services:
 
 ! runtime | ram: 1M | caps: 1000 | binary: hello
@@ -59,7 +59,7 @@ of a single component with an empty configuration and no required services:
 ! -
 
 A more advanced scenario resides at
-_examples/hello_make/pkg/multiple_hello_make/runtime_. It uses the init
+_examples/hello_make/multiple_hello_make/pkg/runtime_. It uses the init
 binary to create a subsystem comprising multiple components:
 
 ! runtime | ram: 10M | caps: 1000 | binary: init
