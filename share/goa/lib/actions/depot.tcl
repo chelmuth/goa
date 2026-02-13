@@ -125,6 +125,8 @@ namespace eval goa {
 
 
 	proc download_archives { archives args } {
+		global config::depot_dir
+
 		set no_err         0
 		set dbg            0
 		set force_download 0
@@ -140,9 +142,11 @@ namespace eval goa {
 		set cmd_args [lmap archive $archives {
 			if {![regexp {^_/.*} $archive]} {
 				set archive
-			} elseif {!$no_err} {
+			} elseif {![file exists [file join $depot_dir $archive]]} {
 				return -code error -errorcode DOWNLOAD_FAILED ""
-			} else { continue }
+			} else {
+				continue
+			}
 		}]
 
 		if {[llength $cmd_args] > 0} {
