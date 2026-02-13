@@ -2,7 +2,7 @@
 
 __goa()
 {
-    local cur prev second globalopts fileopts diropts stropts commands help_commands pkgopts archvals depot_opts depot_commands run_commands run_opts user_opts olevelvals numopts targetvals
+    local cur prev second globalopts fileopts diropts stropts commands help_commands archvals depot_opts depot_commands run_commands run_opts user_opts olevelvals numopts targetvals
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
@@ -11,8 +11,8 @@ __goa()
     help_commands="config api build-systems artifacts add-depot-user import targets runtime index meson"
     depot_commands="export|publish|exported|published"
     run_commands="run|run-dir|backtrace"
-    depot_opts="--depot-user --depot-overwrite --depot-retain --pkg"
-    run_opts="--pkg --run-as --target"
+    depot_opts="--depot-user --depot-overwrite --depot-retain"
+    run_opts="--run-as --target"
     user_opts="--depot-url --gpg-user-id --pubkey-file"
 
     globalopts="--arch --rebuild --debug --warn-strict --no-warn-strict --with-backtrace -C --license --versions-from-genode-dir --depot-dir --public-dir --project-name --contrib-dir --build-dir --abi-dir --bin-dir --dbg-dir --run-dir --common-var-dir --verbose -r --jobs --cross-dev-prefix --ld-march --olevel --search-dir --install-dir --hid --no-hid --update-index --keep-going"
@@ -20,7 +20,6 @@ __goa()
     stropts="--depot-url|--gpg-user-id|--depot-user|--ld-march|--run_as"
     fileopts="--license|--pubkey-file|--cross-dev-prefix"
     diropts="-C|--versions-from-genode-dir|--depot-dir|--public-dir|--project-name|--contrib-dir|--build-dir|--abi-dir|--bin-dir|--dbg-dir|--run-dir|--common-var-dir|--search-dir|--install-dir"
-    pkgopts="--pkg"
     targetvals="linux sculpt"
     archvals="x86_64 arm_v8a"
     olevelvals="-O0 -O1 -O2 -O3 -Ofast -Os"
@@ -48,11 +47,6 @@ __goa()
         return 0
     elif [[ ${prev} == "--arch" ]]; then
         COMPREPLY=( $(compgen -W "${archvals}" -- ${cur}) )
-        return 0
-    elif [[ ${prev} == "--pkg" ]]; then
-        for j in $( compgen -d -- "pkg/${cur}" ); do
-            COMPREPLY[k++]=${j#pkg/}        # cut off directory
-        done
         return 0
     elif [[ ${prev} == "--olevel" ]]; then
         COMPREPLY=( $(compgen -W "${olevelvals}" -- ${cur}) )
@@ -84,7 +78,7 @@ __goa()
         fi
         return 0
     elif [[ ${second} == "bump-version" ]]; then
-        COMPREPLY=( $(compgen -W "-r -C --keep-going --if-needed --pkg --depot-user" -- ${cur}) )
+        COMPREPLY=( $(compgen -W "-r -C --keep-going --if-needed --depot-user" -- ${cur}) )
         return 0
     fi
 

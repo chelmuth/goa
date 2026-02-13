@@ -68,7 +68,7 @@ namespace eval goa {
 		global config::project_dir config::run_dir config::dbg_dir config::bin_dir
 		global config::depot_dir config::debug config::hsd_dir config::hid
 	
-		set pkg_dir [file join $project_dir pkg $args(run_pkg)]
+		set pkg_dir [file join $project_dir pkg]
 	
 		if {![file exists $pkg_dir]} {
 			exit_with_error "no runtime defined at $pkg_dir" }

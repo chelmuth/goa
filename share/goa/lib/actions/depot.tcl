@@ -9,7 +9,7 @@ namespace eval goa {
 	namespace export export-dbg export-bin import-dependencies export-dependencies
 	namespace export published-archives download-foreign publish archive-info
 	namespace export update-index
-	namespace export compare-src compare-raw compare-pkgs compare-api
+	namespace export compare-src compare-raw compare-pkg compare-api
 
 	proc exec_depot_tool { tool args } {
 		global verbose gaol tool_dir
@@ -52,7 +52,7 @@ namespace eval goa {
 	##
 	# Run `goa export` in specified project directory
 	#
-	proc export_dependent_project { dir arch { pkg_name "" } } {
+	proc export_dependent_project { dir arch } {
 		global argv0 config::jobs config::depot_user config::depot_dir
 		global config::versions_from_genode_dir config::public_dir config::debug
 		global config::common_var_dir config::var_dir verbose
@@ -79,8 +79,6 @@ namespace eval goa {
 			lappend cmd --verbose }
 		if {$debug} {
 			lappend cmd --debug }
-		if {$pkg_name != ""} {
-			lappend cmd --pkg $pkg_name }
 
 		# keep existing exports of dependent projects untouched
 		if {$depot_user != "_"} {
@@ -365,15 +363,12 @@ namespace eval goa {
 	# Return versioned archive path for a project's archive of the specified type
 	# (raw, src, pkg, bin, index)
 	#
-	proc versioned_project_archive { type { pkg_name ""} } {
+	proc versioned_project_archive { type } {
 	
 		global config::depot_user config::project_dir config::project_name
 		global config::version config::arch config::sculpt_version
 	
 		set name $project_name
-	
-		if {$type == "pkg" && $pkg_name != ""} {
-			set name $pkg_name }
 	
 		if {$type == "index"} {
 			if {$sculpt_version == ""} {
@@ -427,13 +422,13 @@ namespace eval goa {
 	##
 	# Return list of versioned archives of exported pkg runtime
 	# 
-	proc versioned_runtime_archives { pkg } {
+	proc versioned_runtime_archives { } {
 		global config::project_dir
 
 		set runtime_archives { }
 
 		# add archives specified at the pkg's 'archives' file
-		set archives_file [file join pkg $pkg archives]
+		set archives_file [file join pkg archives]
 		if {[file exists $archives_file]} {
 			set runtime_archives [apply_versions [read_file_content_as_list $archives_file]] }
 
@@ -455,11 +450,11 @@ namespace eval goa {
 	#
 	# \return path to the archive directory (or file if type=="index")
 	#
-	proc prepare_project_archive_directory { type { pkg_name "" } } {
+	proc prepare_project_archive_directory { type } {
 		global config::depot_dir
 	
 		set policy [depot_policy]
-		set archive [versioned_project_archive $type $pkg_name]
+		set archive [versioned_project_archive $type]
 		set dst_dir "[file join $depot_dir $archive]"
 	
 		if {[file exists $dst_dir]} {
@@ -702,12 +697,14 @@ namespace eval goa {
 	}
 
 
-	proc export-pkg { pkg &exported_archives { dst_dir "" }} {
+	proc export-pkg { &exported_archives { dst_dir "" }} {
 
 		global args tool_dir config::arch config::project_dir
 		upvar  ${&exported_archives} exported_archives
 
-		set pkg_dir [file join pkg $pkg]
+		set pkg_dir [file join $project_dir pkg]
+		if {![file exists $pkg_dir] || ![file isdirectory $pkg_dir]} {
+			return }
 
 		set readme_file [file join $pkg_dir README]
 		if {![file exists $readme_file]} {
@@ -718,11 +715,11 @@ namespace eval goa {
 		if {[file exists $runtime_file]} {
 			hid check $runtime_file "runtime" }
 
-		set runtime_archives [versioned_runtime_archives $pkg]
+		set runtime_archives [versioned_runtime_archives]
 
 		set silent 1
 		if {$dst_dir == ""} {
-			set dst_dir [prepare_project_archive_directory pkg $pkg]
+			set dst_dir [prepare_project_archive_directory pkg]
 			set silent 0
 		}
 
@@ -743,7 +740,7 @@ namespace eval goa {
 				log "exported $dst_dir" }
 		}
 
-		lappend exported_archives [apply_arch [versioned_project_archive pkg $pkg] $arch]
+		lappend exported_archives [apply_arch [versioned_project_archive pkg] $arch]
 	}
 
 
@@ -841,10 +838,7 @@ namespace eval goa {
 					exit_with_error "unable to export $versioned_archive: project version is $exported_archive_version" }
 
 
-				set pkg_name ""
-				if {$type == "pkg"} {
-					set pkg_name $name }
-				export_dependent_project $dir $archive_arch $pkg_name
+				export_dependent_project $dir $archive_arch
 
 			} trap NOT_FOUND { } {
 				# project dir not found
@@ -986,7 +980,7 @@ namespace eval goa {
 			if {$type == "bin" || $type == "pkg"} {
 				archive_name_and_arch $archive _pkg _arch
 
-				if {[catch { export_dependent_project $dir $_arch $_pkg} msg]} {
+				if {[catch { export_dependent_project $dir $_arch} msg]} {
 					exit_with_error "failed to export project $dir: \n\t$msg" }
 
 				lappend exported $dir
@@ -1032,13 +1026,9 @@ namespace eval goa {
 		if {[file exists $api_dir] && [file isdirectory $api_dir]} {
 			lappend archives [versioned_project_archive api] }
 	
-		if {$args(publish_pkg) != ""} {
-			lappend archives [apply_arch [versioned_project_archive pkg $args(publish_pkg)] $arch]
-		} else {
-			set pkgs [glob -nocomplain -directory pkg -tail * -type d]
-			foreach pkg $pkgs {
-				lappend archives [apply_arch [versioned_project_archive pkg $pkg] $arch] }
-		}
+		set pkg_dir [file join $project_dir pkg]
+		if {[file exists $pkg_dir] && [file isdirectory $pkg_dir]} {
+			lappend archives [apply_arch [versioned_project_archive pkg] $arch] }
 	
 		set index_file [file join $project_dir index]
 		if {[file exists $index_file] && [file isfile $index_file]} {
@@ -1202,37 +1192,33 @@ namespace eval goa {
 	}
 
 
-	proc compare-pkgs { pkg_expr &exported_archives } {
-		global config::depot_dir config::project_dir config::project_name
+	proc compare-pkg { &exported_archives } {
+		global config::depot_dir config::project_name
 
 		upvar ${&exported_archives} exported_archives
 
 		set result true
-		for_each_pkg pkg $pkg_expr {
-			set pkg_dir [file join pkg $pkg]
 
-			set other_archive [versioned_project_archive pkg $pkg]
-			download_if_missing $other_archive
-			set other_dir [file join $depot_dir $other_archive]
+		set other_archive [versioned_project_archive pkg]
+		download_if_missing $other_archive
+		set other_dir [file join $depot_dir $other_archive]
+		lappend exported_archives $other_archive
 
-			set dst_dir [file join $depot_dir _ pkg $pkg compare]
-			file delete -force $dst_dir
-			file mkdir $dst_dir
+		set dst_dir [file join $depot_dir _ pkg $project_name compare]
+		file delete -force $dst_dir
+		file mkdir $dst_dir
 
-			set dummy ""
-			export-pkg $pkg dummy $dst_dir
+		set dummy ""
+		export-pkg dummy $dst_dir
 
-			set status [exec_status [list diff -qNr $dst_dir $other_dir > /dev/null]]
-			file delete -force $dst_dir
-			if {$status != 0} {
-				log "$other_archive differs from current project state"
-				set result false
-			}
-
-			lappend exported_archives $other_archive
+		set status [exec_status [list diff -qNr $dst_dir $other_dir > /dev/null]]
+		file delete -force $dst_dir
+		if {$status != 0} {
+			log "$other_archive differs from current project state"
+			return false
 		}
 
-		return $result
+		return true
 	}
 
 

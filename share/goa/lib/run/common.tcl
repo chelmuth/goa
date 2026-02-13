@@ -172,7 +172,9 @@ proc generate_runtime_config { runtime_file &runtime_archives &rom_modules } {
 	upvar 1 ${&runtime_archives} runtime_archives
 	upvar 1 ${&rom_modules} rom_modules
 
-	global args config::run_dir config::var_dir config::run_as config::bin_dir
+	global config::project_name
+	global config::run_dir config::var_dir config::run_as config::bin_dir
+
 
 	try {
 		set ram    [query attribute $runtime_file "runtime | : ram"]
@@ -352,7 +354,7 @@ proc generate_runtime_config { runtime_file &runtime_archives &rom_modules } {
 	if {![hid empty $provides]} {
 		set provides [hid create "+ provides" [hid indent 2 $provides]] }
 
-	hid append start_nodes "+ start $args(run_pkg) | caps: $caps | ram: $ram" \
+	hid append start_nodes "+ start $project_name | caps: $caps | ram: $ram" \
 	                       "  + binary $binary" \
 	                       $provides \
 	                       "  + route" [hid indent 2 $routes] \

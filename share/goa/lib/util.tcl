@@ -276,11 +276,18 @@ proc looks_like_goa_project_dir { dir } {
 		if {[file exists $dir/$name] && ![file isdirectory $dir/$name]} {
 			return 0 } }
 
-	# no project if there is no subdirectory in 'pkg/' with a runtime file
-	if {[file exists $dir/pkg]} {
-		set runtime_files [glob -nocomplain -directory $dir/pkg -type f */runtime]
-		if {[llength $runtime_files] == 0} {
-			return 0 } }
+	# check for deprecated runtime files in pkg/*/
+	set name [file tail $dir]
+	if {[file exists $dir/pkg/$name/runtime]} {
+		log "Project still hosts its runtime file at pkg/$name/, which is no longer supported!" \
+		    "\n\nPlease move the files from pkg/$name/ into pkg/" \
+		    "\nYou may also create separate projects for any remaining" \
+		    "\nruntime scenarios under pkg/\n"
+	}
+
+	# no project if there is no runtime file in 'pkg/'
+	if {[file exists $dir/pkg] && ![file isfile $dir/pkg/runtime]} {
+		return 0 }
 
 	# no project if raw/ is empty or has only *~ files or *.orig files
 	if {[file exists $dir/raw]} {
@@ -323,32 +330,25 @@ proc _build_project_dir_cache { type } {
 		} elseif {$type == "api"} {
 			set candidates [exec {*}$find_cmd_base -and -path */api -type f]
 		} elseif {$type == "pkg"} {
-			set candidates [exec {*}$find_cmd_base -and -path */pkg/* -type d]
+			set candidates [exec {*}$find_cmd_base -and -path */pkg -type d]
 		} elseif {$type == "raw"} {
 			set candidates [exec {*}$find_cmd_base -and -path */raw -type d]
 		}
 		cd $orig_pwd
 
 		# make sure the last path element is the project name (except for type=pkg)
-		regsub -line -all {(/(src|raw|import|artifacts|api))$} $candidates "" candidates
+		regsub -line -all {(/(src|raw|pkg|import|artifacts|api))$} $candidates "" candidates
 
 		# store candidates per type to make sure find is called only once per type
 		set project_dir_cache($type) $candidates
 
 		# store each valid project dir in project_dir_cache($type,$name)
-		if {$type == "pkg"} {
-			foreach dir $project_dir_cache($type) {
-				regexp {(.*)/pkg/(.*)$} $dir dummy path name
-				set project_dir_cache($type,$name) [file normalize [file join $search_dir $path]]
-			}
-		} else {
-			foreach dir $project_dir_cache($type) {
-				set absolute_path [file normalize [file join $search_dir $dir]]
-				set name          [file tail $absolute_path]
+		foreach dir $project_dir_cache($type) {
+			set absolute_path [file normalize [file join $search_dir $dir]]
+			set name          [file tail $absolute_path]
 
-				if {[looks_like_goa_project_dir $absolute_path]} {
-					set project_dir_cache($type,$name) $absolute_path }
-			}
+			if {[looks_like_goa_project_dir $absolute_path]} {
+				set project_dir_cache($type,$name) $absolute_path }
 		}
 	}
 }
@@ -935,16 +935,4 @@ proc user_confirmation { msg default_yes } {
 	}]
 
 	return $choice
-}
-
-
-proc for_each_pkg { &pkg pkg_expr body } {
-	upvar ${&pkg} pkg
-
-	if {$pkg_expr == ""} {
-		set pkg_expr "*" }
-
-	set pkgs [glob -nocomplain -directory pkg -tail $pkg_expr -type d]
-	foreach pkg $pkgs {
-		uplevel 1 $body }
 }

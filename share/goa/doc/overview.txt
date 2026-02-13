@@ -48,7 +48,7 @@ It can have the following ingredients:
 :api: A file that describes the header files that comprise the public
   interface of a library. It is only needed when building libraries.
 
-:pkg/: A directory containing descriptions of runtime scenarios for
+:pkg/: A directory containing the description of a runtime scenario for
   test-driving the project.
 
 :var/: A directory that contains files generated during the operation
@@ -176,22 +176,18 @@ Commands
 :goa info <user>/[pkg|src]/<name>[/<version>]:
   Show documentation about the specified pkg or src archive.
 
-:goa bump-version [--if-needed [--pkg <pkg-name>] [--depot-user <user>]] [<version>]:
+:goa bump-version [--if-needed [--depot-user <user>]] [<version>]:
   Update version file of a Goa project. If <version> is not provided, the
   current date is taken. If the project version already matches the desired
   date, "-a" is added as a suffix and alphabetically incremented for every
   version bump. When provided with the --if-needed option, the version update
   is omitted if the exported/published version is already up-to-date.
-  If <pkg-name> is supplied, only the scenario at pkg/<pkg-name> is compared
-  against the corresponding exported/published archive.
 
-:goa exported [--pkg <pkg-name>] [--depot-user <user>]:
+:goa exported [--depot-user <user>]:
   Compare project status with the archives exported for <user> and
-  the currently set archive versions. If <pkg-name> is supplied, only the
-  scenario at pkg/<pkg-name> is compared against the corresponding
-  exported archive.
+  the currently set archive versions.
 
-:goa published [--pkg <pkg-name>] [--depot-user <user>]:
+:goa published [--depot-user <user>]:
   Implicies the *exported* command and additionally checks for the presence
   of the project's archives in the public_dir.
 
@@ -239,29 +235,27 @@ Commands
   You should review the files and add them to the repository.
   They are required by users of the library during the *build* step.
 
-:goa run-dir [--pkg <pkg-name>]:
+:goa run-dir:
   Prepare the run directory for executing the system scenario defined at
-  pkg/<pkg-name>. If no argument is supplied, <pkg-name> is assumed to
-  correspond to the name of the project directory.
+  pkg/.
 
   This command implies the *build* command.
 
-:goa run [--pkg <pkg-name>]:
+:goa run:
   Execute a system scenario as prepared by the *run-dir* command.
 
   This command implies the *run-dir* command. The log of the scenario is stored
   in the project's run directory.
 
-:goa backtrace [--pkg <pkg-name>] [--binary-name <name>]:
+:goa backtrace [--binary-name <name>]:
   Execute a system scenario with the *run* command.
 
   After the user cancelled the scenario, the log saved output is passed to the
   backtrace utility. The name of the top-level binary can be provided via the
   *--binary-name* argument.
 
-:goa export [--depot-user <name>] [--pkg <pkg-name>]:
-  Export entire project to a Genode depot. If <pkg-name> is supplied,
-  only the scenario defined at pkg/<pkg-name> is exported.
+:goa export [--depot-user <name>]:
+  Export entire project to a Genode depot.
 
   When Goa encounters dependencies to depot archives provided by
   projects located in subdirectories of the current working directory, it
@@ -269,7 +263,7 @@ Commands
 
   This command implies the *build* command.
 
-:goa publish [--depot-user <name>] [--pkg <pkg-name>]:
+:goa publish [--depot-user <name>]:
   Archive and sign depot archives generated via the *export* command.
 
   This command implies the *export* command.

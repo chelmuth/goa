@@ -143,7 +143,7 @@ if {$perform(exported)} {
 	set status [expr [goa compare-src exported_archives] && \
 	                 [goa compare-raw exported_archives] && \
 	                 [goa compare-api exported_archives] && \
-	                 [goa compare-pkgs $args(compare_pkg) exported_archives]]
+	                 [goa compare-pkg exported_archives]]
 	if {!$status} {
 		log "Version update recommended"
 		exit 1
@@ -177,7 +177,7 @@ if {$perform(bump-version)} {
 		set status [expr [goa compare-src dummy] && \
 		                 [goa compare-raw dummy] && \
 		                 [goa compare-api dummy] && \
-		                 [goa compare-pkgs $args(compare_pkg) dummy]]
+		                 [goa compare-pkg dummy]]
 
 		if {$status} {
 			log "Skipping version bump"
@@ -352,9 +352,8 @@ if {$perform(export)} {
 	goa export-api
 	goa export-raw
 	goa export-src
-	for_each_pkg pkg $args(publish_pkg) {
-		goa export-pkg $pkg exported_archives }
-	goa export-bin   exported_archives
+	goa export-pkg exported_archives
+	goa export-bin exported_archives
 	if {$config::debug} { goa export-dbg }
 	goa export-index exported_archives
 

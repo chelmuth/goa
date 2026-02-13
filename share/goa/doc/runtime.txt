@@ -6,7 +6,7 @@
 
 
 A _runtime_ file defines the runtime scenario. The file resides at a
-_pkg/<pkg-name>/_ subdirectory and specifies the required/provided services,
+_pkg/_ subdirectory and specifies the required/provided services,
 the required ROM modules and the configuration of a Genode component.
 
 

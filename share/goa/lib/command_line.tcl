@@ -259,14 +259,12 @@ if {$perform(backtrace)} {
 }
 
 if {$perform(exported) || $perform(published)} {
-	set args(compare_pkg)  [consume_optional_cmdline_arg "--pkg" ""]
 	set config::depot_user [consume_optional_cmdline_arg "--depot-user" $config::depot_user]
 	set args(force_download) $perform(published)
 }
 
 if {$perform(bump-version)} {
 	set args(if_needed)    [consume_optional_cmdline_switch "--if-needed"]
-	set args(compare_pkg)  [consume_optional_cmdline_arg    "--pkg" ""]
 	set config::depot_user [consume_optional_cmdline_arg    "--depot-user" $config::depot_user]
 	set args(target_version) [clock format [clock seconds] -format %Y-%m-%d]
 	if {[llength $argv] == 1} {
@@ -326,8 +324,6 @@ if {$perform(build-dir)} {
 if {$perform(run-dir)} {
 	set config::target [consume_optional_cmdline_arg "--target" $config::target]
 	set config::run_as [consume_optional_cmdline_arg "--run-as" $config::run_as]
-	# unless given as additional argument, run the pkg named after the project
-	set args(run_pkg)  [consume_optional_cmdline_arg "--pkg"    $config::project_name]
 }
 
 if {$perform(build)} {
@@ -354,7 +350,6 @@ if {$perform(export)} {
 	set config::depot_retain    [consume_optional_cmdline_switch "--depot-retain"]
 	set config::license         [consume_optional_cmdline_arg "--license"        $config::license]
 	set config::sculpt_version  [consume_optional_cmdline_arg "--sculpt-version" $config::sculpt_version]
-	set args(publish_pkg)       [consume_optional_cmdline_arg "--pkg"            ""]
 }
 
 if {$perform(archive-versions)} {

@@ -150,7 +150,7 @@ proc bind_provided_services { &services } {
 
 
 proc bind_required_services { &services } {
-	global args
+	global config::project_name
 	global config::debug config::target config::target_opt
 
 	# use upvar to access array
@@ -166,7 +166,7 @@ proc bind_required_services { &services } {
 
 	if { $debug } {
 		hid append start_nodes "+ monitor | max_response: 2K" \
-		                       "  + policy | label_prefix: $args(run_pkg)" \
+		                       "  + policy | label_prefix: $project_name" \
 		                       "           | wait: no" \
 		                       "           | stop: no" \
 		                       "           | wx: yes"
