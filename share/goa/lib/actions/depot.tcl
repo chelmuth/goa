@@ -833,7 +833,8 @@ namespace eval goa {
 				set dir [find_project_dir_for_archive $type $name]
 				
 				# check that the expected version matches the exported version
-				set exported_archive_version [exported_project_archive_version $dir $user/$type/$name]
+				set archive "$user/$type/$name"
+				set exported_archive_version [exported_project_archive_version $dir $archive]
 				if { "$archive/$exported_archive_version" != "$versioned_archive" } {
 					exit_with_error "unable to export $versioned_archive: project version is $exported_archive_version" }
 
