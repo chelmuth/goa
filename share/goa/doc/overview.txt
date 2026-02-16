@@ -296,7 +296,13 @@ Optional Arguments and Configuration Overrides
 
 :-r:
   Recursively scan for project directories in the current working directory
-  and execute the command for each project.
+  and execute the command for each project. By default, test projects are
+  skipped unless *--only-tests* is provided as well.
+
+:--only-tests:
+  Only target test projects during recursive execution. A project is
+  classified as test project, if it is located within a "test" directory or
+  any subdirectory thereof.
 
 :--keep-going:
   Do not error out during recursive execution but keep going and print

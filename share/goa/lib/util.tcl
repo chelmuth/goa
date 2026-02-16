@@ -304,6 +304,18 @@ proc looks_like_goa_project_dir { dir } {
 
 
 ##
+# Return 1 if a goa project is considered a test
+#
+proc looks_like_test_project { dir } {
+	set path_elements [split $dir "/"]
+	if {[lsearch -exact $path_elements "test"] >= 0} {
+		return true
+	}
+	return false
+}
+
+
+##
 # Build up cache of potential project directories
 #
 proc _build_project_dir_cache { type } {

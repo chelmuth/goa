@@ -67,7 +67,7 @@ set project_name [file tail $project_dir]
 # Search directory tree for project directories
 #
 
-proc goa_project_dirs { } {
+proc goa_project_dirs { tests } {
 
 	#
 	# A project directory must contain an 'import' file, a 'src/' directory,
@@ -91,10 +91,16 @@ proc goa_project_dirs { } {
 	# filter out candidates that are do not look like a real project dir
 	set project_dirs { }
 	foreach dir $project_candidates {
-		set dir [file normalize $dir]
+		set absdir [file normalize $dir]
 
-		if {[looks_like_goa_project_dir $dir]} {
-			lappend project_dirs $dir }
+		if {[looks_like_goa_project_dir $absdir]} {
+			set test [expr [looks_like_test_project $dir] || \
+			               [looks_like_test_project $absdir]]
+
+			if {$tests == $test} {
+				lappend project_dirs $absdir
+			}
+		}
 	}
 
 	return $project_dirs
@@ -110,12 +116,13 @@ source [file join $tool_dir lib config.tcl]
 if {[consume_optional_cmdline_switch "-r"]} {
 
 	set keep_going [consume_optional_cmdline_switch "--keep-going"]
+	set only_tests [consume_optional_cmdline_switch "--only-tests"]
 
 	# make sure to populate allowed_paths
 	config::load_privileged_goarc_files
 
 	set failed_project_dirs { }
-	foreach dir [goa_project_dirs] {
+	foreach dir [goa_project_dirs $only_tests] {
 
 		# assemble command for invoking the per-project execution of goa
 		set cmd { }
