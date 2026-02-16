@@ -60,6 +60,8 @@ set targeted_dir [consume_optional_cmdline_arg "-C" ""]
 if {$targeted_dir != ""} {
 	cd $targeted_dir }
 unset targeted_dir
+set project_dir  [pwd]
+set project_name [file tail $project_dir]
 
 #
 # Search directory tree for project directories
@@ -150,7 +152,7 @@ if {[consume_optional_cmdline_switch "-r"]} {
 # Goa was called without '-r' argument, process a single project directory
 #
 
-diag "process project '$config::project_name' with arguments: $argv"
+diag "process project '$project_name' with arguments: $argv"
 
 config load_goarc_files
 

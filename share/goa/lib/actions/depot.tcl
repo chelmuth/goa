@@ -367,7 +367,7 @@ namespace eval goa {
 	#
 	proc versioned_project_archive { type } {
 	
-		global config::depot_user config::project_dir config::project_name
+		global config::depot_user project_dir project_name
 		global config::version config::arch config::sculpt_version
 	
 		set name $project_name
@@ -425,7 +425,7 @@ namespace eval goa {
 	# Return list of versioned archives of exported pkg runtime
 	# 
 	proc versioned_runtime_archives { } {
-		global config::project_dir
+		global project_dir
 
 		set runtime_archives { }
 
@@ -485,7 +485,7 @@ namespace eval goa {
 	# Return path to the license file as defined for the project
 	#
 	proc license_file { } {
-		global config::project_dir config::license
+		global project_dir config::license
 	
 		set local_license_file [file safe-join $project_dir LICENSE]
 		if {[file exists $local_license_file]} {
@@ -576,7 +576,7 @@ namespace eval goa {
 
 	proc export-api { { dst_dir "" } } {
 
-		global config::api_dir config::project_dir
+		global config::api_dir project_dir
 
 		if {[file exists $api_dir] && [file isdirectory $api_dir]} {
 
@@ -637,7 +637,7 @@ namespace eval goa {
 
 	proc export-raw { { dst_dir "" } } {
 
-		global config::project_dir
+		global project_dir
 
 		set raw_dir [file join $project_dir raw]
 		if {[file exists $raw_dir] && [file isdirectory $raw_dir]} {
@@ -656,7 +656,7 @@ namespace eval goa {
 
 	proc export-src { { dst_dir "" } } {
 
-		global config::project_dir
+		global project_dir
 
 		# create src archive
 		set src_dir [file join $project_dir src]
@@ -705,7 +705,7 @@ namespace eval goa {
 
 	proc export-pkg { &exported_archives { dst_dir "" }} {
 
-		global args tool_dir config::arch config::project_dir
+		global args tool_dir config::arch project_dir
 		upvar  ${&exported_archives} exported_archives
 
 		set pkg_dir [file join $project_dir pkg]
@@ -818,7 +818,7 @@ namespace eval goa {
 
 	proc export-index { &exported_archives } {
 
-		global config::project_dir config::depot_dir
+		global project_dir config::depot_dir
 		upvar  ${&exported_archives} exported_archives
 
 		# helper for downloading archives and exporting projects
@@ -1016,7 +1016,7 @@ namespace eval goa {
 	proc published-archives { } {
 
 		global args
-		global config::project_dir config::bin_dir config::api_dir config::arch config::depot_dir
+		global project_dir config::bin_dir config::api_dir config::arch config::depot_dir
 		set archives { }
 		set index_archive ""
 	
@@ -1147,7 +1147,7 @@ namespace eval goa {
 
 
 	proc compare-raw { &exported_archives } {
-		global config::depot_dir config::project_dir
+		global config::depot_dir project_dir
 
 		upvar ${&exported_archives} exported_archives
 		
@@ -1171,7 +1171,7 @@ namespace eval goa {
 
 
 	proc compare-src { &exported_archives } {
-		global config::depot_dir config::project_dir config::project_name
+		global config::depot_dir project_dir project_name
 
 		upvar ${&exported_archives} exported_archives
 		
@@ -1201,7 +1201,7 @@ namespace eval goa {
 
 
 	proc compare-pkg { &exported_archives } {
-		global config::depot_dir config::project_name
+		global config::depot_dir project_name
 
 		upvar ${&exported_archives} exported_archives
 
@@ -1231,8 +1231,8 @@ namespace eval goa {
 
 
 	proc compare-api { &exported_archives } {
-		global config::depot_dir config::api_dir config::project_dir
-		global config::project_name
+		global config::depot_dir config::api_dir project_dir
+		global project_name
 
 		upvar ${&exported_archives} exported_archives
  

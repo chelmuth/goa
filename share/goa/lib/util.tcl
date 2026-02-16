@@ -23,8 +23,8 @@ proc stacktrace { } {
 proc exit_with_error { args } {
 	global verbose
 
-	if {[namespace exists config]} {
-		puts -nonewline stderr "\[$config::project_name\] " }
+	if {[info exists project_name]} {
+		puts -nonewline stderr "\[$project_name\] " }
 
 	puts stderr "Error: [join $args { }]"
 
@@ -40,8 +40,8 @@ proc diag { args } {
 	global verbose
 
 	if {$verbose} {
-		if {[namespace exists config]} {
-			puts -nonewline "\[$config::project_name\] " }
+		if {[info exists project_name]} {
+			puts -nonewline "\[$project_name\] " }
 
 		puts "[join $args { }]"
 	}
@@ -52,7 +52,6 @@ proc diag { args } {
 # Unconditionally print message, prefixed with the project name
 #
 proc log { args } {
-	global config::project_name
 
 	if {[info exists project_name]} {
 		puts -nonewline "\[$project_name\] " }
@@ -777,7 +776,7 @@ proc symlink_directory_content { file_whitelist from_dir to_dir } {
 #
 proc mirror_source_dir_to_build_dir { } {
 
-	global config::build_dir config::project_dir
+	global config::build_dir project_dir
 
 	#
 	# Mirror structure of source dir in build dir using symbolic links

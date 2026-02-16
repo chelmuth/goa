@@ -4,8 +4,8 @@ proc create_or_update_build_dir { } {
 	global tool_dir
 	global cppflags cflags cxxflags spec_args
 	global env cmake_quirk_args
-	global config::build_dir config::project_dir config::abi_dir
-	global config::cross_dev_prefix config::include_dirs config::project_name
+	global config::build_dir project_dir config::abi_dir
+	global config::cross_dev_prefix config::include_dirs project_name
 	global api_dirs
 
 	if {![file exists $build_dir]} {
@@ -52,7 +52,7 @@ proc create_or_update_build_dir { } {
 
 proc build { } {
 	global verbose tool_dir
-	global config::build_dir config::jobs config::project_name
+	global config::build_dir config::jobs project_name
 
 	set     cmd [goa::sandboxed_build_command]
 	lappend cmd make -C $build_dir "-j$jobs"

@@ -10,8 +10,6 @@ namespace eval ::config {
 
 	# defaults, potentially being overwritten by 'goarc' files
 	# Note: All variables in this namespace can be overwritten by 'goarc' files
-	variable project_dir              [pwd]
-	variable project_name             [file tail $project_dir]
 	variable arch                     ""
 	variable cross_dev_prefix         ""
 	variable rebuild                  0
@@ -126,7 +124,7 @@ namespace eval ::config {
 	# used as alias for 'file' in main interpreter
 	proc _safe_file { args } {
 		global allowed_paths allowed_tools writeable_paths
-		global config::var_dir config::depot_dir config::public_dir config::project_dir
+		global config::var_dir config::depot_dir config::public_dir project_dir
 
 		proc _validate_path_arg { paths num args } {
 			set target_path [lindex $args $num]
@@ -209,6 +207,9 @@ namespace eval ::config {
 
 		set name [lindex $args 0]
 
+		if {$name == "project_name" || $name == "project_dir"} {
+			exit_with_error "Setting '$name' in $rcfile has been deprecated." }
+
 		if {![info exists ::config::[lindex [split $name "("] 0]]} {
 			diag "variable '$name' defined in $rcfile is not a config variable"
 			return
@@ -262,7 +263,7 @@ namespace eval ::config {
 
 
 	proc load_goarc_files { { only_privileged_goarc 0 } } {
-		global tool_dir original_dir config::project_dir
+		global tool_dir original_dir project_dir
 		global allowed_paths allowed_tools
 		global privileged_rcfiles
 
@@ -366,8 +367,7 @@ namespace eval ::config {
 	}
 
 	proc set_late_defaults {} {
-		variable project_dir
-		variable project_name
+		global project_dir project_name
 		variable common_var_dir
 		variable versions_from_genode_dir
 		variable license

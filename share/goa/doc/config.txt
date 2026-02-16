@@ -45,10 +45,6 @@ Settings
 
 Goa evaluates the following configuration variables.
 
-:project_name:
-  This variable overrides the default project name, which is the name of the
-  project directory.
-
 :arch:
   The CPU architecture used for building the software.
   Supported values are _x86_64_ and _arm_v8a_.

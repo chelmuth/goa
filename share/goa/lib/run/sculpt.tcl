@@ -1,7 +1,7 @@
 proc run_genode { } {
 	global tool_dir
 	global config::run_dir config::var_dir config::target config::target_opt
-	global config::project_name config::depot_dir config::debug
+	global project_name config::depot_dir config::debug
 
 	if {![info exists target_opt($target-server)]} {
 		exit_with_error "missing target option '$target-server'\n" \
@@ -150,7 +150,7 @@ proc bind_provided_services { &services } {
 
 
 proc bind_required_services { &services } {
-	global config::project_name
+	global project_name
 	global config::debug config::target config::target_opt
 
 	# use upvar to access array

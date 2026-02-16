@@ -1,5 +1,5 @@
 proc run_genode { } {
-	global config::run_dir config::var_dir config::project_name config::depot_dir config::debug
+	global config::run_dir config::var_dir project_name config::depot_dir config::debug
 
 	##
 	# create helper file for gdb
@@ -517,7 +517,7 @@ proc _instantiate_uplink_client { uplink_label &start_nodes &archives &modules }
 	upvar 1 ${&archives} archives
 	upvar 1 ${&modules} modules
 
-	global config::project_name config::run_as
+	global project_name config::run_as
 
 	hid append start_nodes "+ start nic | caps: 100 | ld: no | ram: 4M" \
 	                       "  + binary linux_nic" \
@@ -661,7 +661,7 @@ proc _instantiate_clipboard { &start_nodes &archives &modules } {
 	upvar 1 ${&archives} archives
 	upvar 1 ${&modules} modules
 
-	global config::project_name config::run_as
+	global project_name config::run_as
 
 	hid append start_nodes "+ start clipboard | caps: 100 | ram: 2M" \
 	                       "  + binary report_rom" \

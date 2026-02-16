@@ -2,7 +2,7 @@
 proc create_or_update_build_dir { } {
 
 	global verbose
-	global config::build_dir config::project_dir config::project_name
+	global config::build_dir project_dir project_name
 
 	# skip if project file already exists
 	if {[file exists [glob -nocomplain [file join $build_dir * *.xpr]]]} {
@@ -43,7 +43,7 @@ proc create_or_update_build_dir { } {
 
 proc build { } {
 	global verbose tool_dir
-	global config::build_dir config::jobs config::project_name config::project_dir
+	global config::build_dir config::jobs project_name project_dir
 
 	set orig_pwd [pwd]
 	cd $build_dir

@@ -58,8 +58,8 @@ proc _qmake_build_cmd { qt_version qmake_platform } {
 proc create_or_update_build_dir { } {
 
 	global cppflags cxxflags
-	global config::build_dir config::project_dir config::abi_dir
-	global config::cross_dev_prefix config::project_name
+	global config::build_dir project_dir config::abi_dir
+	global config::cross_dev_prefix project_name
 	global config::toolchain_version
 
 	set qmake_platform [_qmake_platform]
@@ -120,7 +120,7 @@ proc create_or_update_build_dir { } {
 
 proc build { } {
 	global verbose
-	global config::build_dir config::jobs config::project_name
+	global config::build_dir config::jobs project_name
 
 	set     cmd [_qmake_build_cmd [_qt_version] [_qmake_platform]]
 	lappend cmd make -C $build_dir "-j$jobs"

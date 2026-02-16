@@ -2,7 +2,7 @@ proc _make_cmd { } {
 	global verbose
 	global cppflags cflags cxxflags api_dirs
 	global spec_args
-	global config::build_dir config::cross_dev_prefix config::jobs config::project_dir
+	global config::build_dir config::cross_dev_prefix config::jobs project_dir
 	global config::depot_dir config::var_dir
 
 	create_spec_file "" ""
@@ -60,7 +60,7 @@ proc create_or_update_build_dir { } {
 
 
 proc build { } {
-	global config::project_name
+	global project_name
 
 	set cmd [_make_cmd]
 

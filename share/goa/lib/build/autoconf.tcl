@@ -4,8 +4,8 @@ proc create_or_update_build_dir { } {
 	mirror_source_dir_to_build_dir
 
 	global cppflags cflags cxxflags api_dirs spec_args
-	global config::build_dir config::cross_dev_prefix config::project_name
-	global config::project_dir
+	global config::build_dir config::cross_dev_prefix project_name
+	global project_dir
 
 	# invoke configure script only once
 	if {[file exists [file join $build_dir config.status]]} {
@@ -79,7 +79,7 @@ proc create_or_update_build_dir { } {
 proc build { } {
 
 	global verbose
-	global config::build_dir config::project_name config::jobs config::project_dir
+	global config::build_dir project_name config::jobs project_dir
 
 	set     cmd [goa::sandboxed_build_command]
 

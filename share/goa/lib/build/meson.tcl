@@ -71,7 +71,7 @@ proc create_cross_file { dir } {
 proc create_or_update_build_dir { } {
 	global cppflags cflags cxxflags
 	global ldflags ldlibs_exe ldlibs_common
-	global config::build_dir config::project_dir config::abi_dir config::project_name
+	global config::build_dir project_dir config::abi_dir project_name
 	global config::cross_dev_prefix config::cc_cxx_opt_std config::debug
 
 	if {![file exists $build_dir]} {
@@ -170,7 +170,7 @@ proc retrieve_build_targets { json shared } {
 
 
 proc retrieve_rpath_link { } {
-	global config::project_dir
+	global project_dir
 
 	set rpath_link { }
 	foreach arg [read_file_content_as_list [file join $project_dir rpath_link]] {
@@ -187,7 +187,7 @@ proc retrieve_rpath_link { } {
 proc build_targets { targets link_args shared } {
 	global verbose
 	global config::build_dir config::jobs
-	global config::project_dir config::project_name
+	global project_dir project_name
 	global ldflags ldflags_so ldlibs_common ldlibs_exe ldlibs_so
 
 	# configure build directory for executable or shared library build
@@ -244,7 +244,7 @@ proc build_targets { targets link_args shared } {
 
 proc build { } {
 	global verbose tool_dir
-	global config::build_dir config::project_name
+	global config::build_dir project_name
 
 	set link_args ""
 	set rpath_link [retrieve_rpath_link]

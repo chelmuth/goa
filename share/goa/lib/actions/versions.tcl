@@ -24,7 +24,7 @@ namespace eval goa {
 
 	proc bump-version { target_version } {
 
-		global config::project_dir
+		global project_dir
 
 		set version_file [file join $project_dir version]
 		if {[file exists $version_file]} {
@@ -112,7 +112,7 @@ namespace eval goa {
 	proc archive-versions { archives } {
 
 		global config::versions_from_genode_dir config::depot_user config::version
-		global config::project_dir
+		global project_dir
 
 		if {[llength $archives] > 0} {
 			set versioned_archives [apply_versions $archives]

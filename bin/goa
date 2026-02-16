@@ -128,8 +128,8 @@ if {$perform(archive-versions)} {
 # The following commands only work when the current working directory is a goa
 # project.
 #
-if {![looks_like_goa_project_dir $config::project_dir] && ![has_src_but_no_artifacts $config::project_dir]} {
-	exit_with_error "$config::project_dir does not look like a goa project" }
+if {![looks_like_goa_project_dir $project_dir] && ![has_src_but_no_artifacts $project_dir]} {
+	exit_with_error "$project_dir does not look like a goa project" }
 
 ##
 # Compare with exported/published archive
@@ -218,8 +218,8 @@ if {$perform(import)} {
 source [file join $tool_dir lib actions build.tcl]
 
 if {$perform(build-dir)} {
-	if {[has_src_but_no_artifacts $config::project_dir]} {
-		exit_with_error "$config::project_dir has a 'src' directory but lacks an" \
+	if {[has_src_but_no_artifacts $project_dir]} {
+		exit_with_error "$project_dir has a 'src' directory but lacks an" \
 		                "'artifacts' file. You may start with an empty file."
 	}
 }
@@ -296,7 +296,7 @@ if {$perform(run-dir)} {
 if {$perform(run)} {
 
 	# start recording
-	set filename [file join $config::var_dir $config::project_name.log]
+	set filename [file join $config::var_dir $project_name.log]
 	log_file -noappend $filename
 
 	run_genode

@@ -10,7 +10,7 @@ namespace eval goa {
 	namespace export install-toolchain
 
 	proc sandboxed_build_command { {silent 0} } {
-		global config::project_dir config::depot_dir config::var_dir config::build_dir
+		global project_dir config::depot_dir config::var_dir config::build_dir
 
 		set     cmd [gaol_with_toolchain $silent]
 		lappend cmd --ro-bind $depot_dir
@@ -260,7 +260,7 @@ namespace eval goa {
 	#
 	proc prepare_abi_stubs { used_apis } {
 
-		global config::project_name
+		global project_name
 
 		diag "generate ABI stubs"
 
@@ -278,7 +278,7 @@ namespace eval goa {
 	#
 	proc prepare_ldso_support_stub { used_apis } {
 
-		global config::project_name
+		global project_name
 
 		set so_api { }
 		foreach api_path $used_apis {
@@ -306,7 +306,7 @@ namespace eval goa {
 	# 
 	proc prepare_abi_static { name include_dirs src } {
 		global config::abi_dir config::depot_dir config::cross_dev_prefix
-		global config::project_name
+		global project_name
 		global cxxflags
 
 		diag "generate $name"
@@ -409,7 +409,7 @@ namespace eval goa {
 		global config::cc_cxx_opt_std config::ld_march config::abi_dir
 		global config::build_dir api_dirs
 		global config::with_backtrace config::warn_strict config::depot_user
-		global config::project_name config::project_dir
+		global project_name project_dir
 
 		#
 		# Prepare depot content for the used APIs and generate ABI stubs
@@ -529,7 +529,7 @@ namespace eval goa {
 
 	proc create_artifact_containers_from_list_file { list_file_path } {
 
-		global gaol config::bin_dir config::build_dir config::project_dir
+		global gaol config::bin_dir config::build_dir project_dir
 
 		set artifact_files { }
 		set artifacts [read_file_content_as_list $list_file_path]
@@ -605,7 +605,7 @@ namespace eval goa {
 
 	proc extract_artifacts_from_build_dir { } {
 
-		global config::project_dir config::build_dir config::bin_dir
+		global project_dir config::build_dir config::bin_dir
 		global config::dbg_dir config::debug
 		variable library_artifacts { }
 
@@ -644,7 +644,7 @@ namespace eval goa {
 	proc check_abis { } {
 
 		global tool_dir gaol
-		global config::arch config::project_dir config::var_dir config::cross_dev_prefix
+		global config::arch project_dir config::var_dir config::cross_dev_prefix
 		variable library_artifacts
 	
 		foreach library $library_artifacts {
@@ -688,7 +688,7 @@ namespace eval goa {
 
 	proc extract_api_artifacts { } {
 
-		global config::project_dir config::build_dir config::api_dir
+		global project_dir config::build_dir config::api_dir
 
 		set api_file_path [file join $project_dir api]
 
@@ -763,7 +763,7 @@ namespace eval goa {
 	proc extract_library_symbols { } {
 
 		global tool_dir gaol
-		global config::build_dir config::project_dir
+		global config::build_dir project_dir
 
 		set artifacts_file_path [file join $project_dir artifacts]
 

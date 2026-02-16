@@ -3,7 +3,7 @@ proc create_or_update_build_dir { } { mirror_source_dir_to_build_dir }
 
 proc generate_static_stubs { libs } {
 	global tool_dir verbose cflags cppflags
-	global config::abi_dir config::cross_dev_prefix config::cc_march config::project_name
+	global config::abi_dir config::cross_dev_prefix config::cc_march project_name
 
 	set     cmd [sandboxed_build_command]
 	lappend cmd --bind $abi_dir
@@ -80,7 +80,7 @@ proc build { } {
 	global verbose tool_dir rustup_home cargo_home cargo_path
 	global cppflags cflags cxxflags spec_args
 	global config::build_dir config::cross_dev_prefix config::debug config::arch
-	global config::project_name config::jobs config::project_dir config::cc_march
+	global project_name config::jobs project_dir config::cc_march
 
 	if {$arch != "x86_64"} {
 		exit_with_error "Cargo/rust support is limited to x86_64." }

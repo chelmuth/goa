@@ -8,7 +8,7 @@ namespace eval goa {
 	proc exec_import_tool { tool args } {
 		global verbose gaol tool_dir
 		global config::contrib_dir config::contrib_cache_dir
-		global config::project_dir config::jobs
+		global project_dir config::jobs
 
 		set     cmd $gaol
 		lappend cmd --system-usr
@@ -93,7 +93,7 @@ namespace eval goa {
 	proc import { } {
 
 		global verbose tool_dir
-		global config::contrib_dir config::jobs config::project_dir
+		global config::contrib_dir config::jobs project_dir
 		global config::build_dir config::import_dir
 		global config::contrib_cache_dir
 

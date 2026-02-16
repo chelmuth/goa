@@ -172,7 +172,7 @@ proc generate_runtime_config { runtime_file &runtime_archives &rom_modules } {
 	upvar 1 ${&runtime_archives} runtime_archives
 	upvar 1 ${&rom_modules} rom_modules
 
-	global config::project_name
+	global project_name
 	global config::run_dir config::var_dir config::run_as config::bin_dir
 
 
