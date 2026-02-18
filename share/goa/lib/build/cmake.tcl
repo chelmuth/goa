@@ -2,8 +2,8 @@
 proc create_or_update_build_dir { } {
 
 	global tool_dir
-	global cppflags cflags cxxflags ldflags ldflags_so ldlibs_common ldlibs_exe
-	global ldlibs_so env cmake_quirk_args
+	global cppflags cflags cxxflags spec_args
+	global env cmake_quirk_args
 	global config::build_dir config::project_dir config::abi_dir
 	global config::cross_dev_prefix config::include_dirs config::project_name
 	global api_dirs
@@ -11,12 +11,12 @@ proc create_or_update_build_dir { } {
 	if {![file exists $build_dir]} {
 		file mkdir $build_dir }
 
+	create_spec_file "" ""
+
 	set orig_pwd [pwd]
 	cd $build_dir
 
 	set     cmd [goa::sandboxed_build_command]
-	lappend cmd --setenv LDFLAGS "$ldflags $ldlibs_common $ldlibs_exe"
-
 	lappend cmd cmake
 	lappend cmd "-DCMAKE_IGNORE_PREFIX_PATH='/;/usr'"
 	lappend cmd "-DCMAKE_MODULE_PATH='[join ${api_dirs} ";"];[file join $tool_dir cmake Modules]'"
@@ -25,9 +25,9 @@ proc create_or_update_build_dir { } {
 	lappend cmd "-DCMAKE_CXX_COMPILER=${cross_dev_prefix}g++"
 	lappend cmd "-DCMAKE_C_FLAGS='$cflags $cppflags'"
 	lappend cmd "-DCMAKE_CXX_FLAGS='$cxxflags $cppflags'"
-	lappend cmd "-DCMAKE_EXE_LINKER_FLAGS='$ldflags $ldlibs_common $ldlibs_exe'"
-	lappend cmd "-DCMAKE_SHARED_LINKER_FLAGS='$ldflags_so $ldlibs_common $ldlibs_so'"
-	lappend cmd "-DCMAKE_MODULE_LINKER_FLAGS='$ldflags_so $ldlibs_common $ldlibs_so'"
+	lappend cmd "-DCMAKE_EXE_LINKER_FLAGS='$spec_args'"
+	lappend cmd "-DCMAKE_SHARED_LINKER_FLAGS='$spec_args -shared'"
+	lappend cmd "-DCMAKE_MODULE_LINKER_FLAGS='$spec_args -shared'"
 	lappend cmd "-DCMAKE_INSTALL_PREFIX:PATH=[file join $build_dir install]"
 	lappend cmd "-DCMAKE_SYSTEM_LIBRARY_PATH='$abi_dir'"
 
@@ -52,11 +52,9 @@ proc create_or_update_build_dir { } {
 
 proc build { } {
 	global verbose tool_dir
-	global ldflags ldlibs_common ldlibs_exe
 	global config::build_dir config::jobs config::project_name
 
 	set     cmd [goa::sandboxed_build_command]
-	lappend cmd --setenv LDFLAGS "$ldflags $ldlibs_common $ldlibs_exe"
 	lappend cmd make -C $build_dir "-j$jobs"
 
 	if {$verbose == 0} {
