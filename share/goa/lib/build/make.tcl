@@ -1,9 +1,11 @@
 proc _make_cmd { } {
 	global verbose
-	global cppflags cflags cxxflags ldflags ldlibs_common ldlibs_exe
-	global ldflags_so ldlibs_so api_dirs
+	global cppflags cflags cxxflags api_dirs
+	global spec_args
 	global config::build_dir config::cross_dev_prefix config::jobs config::project_dir
 	global config::depot_dir config::var_dir
+
+	create_spec_file "" ""
 
 	set     cmd [sandboxed_build_command]
 
@@ -11,15 +13,15 @@ proc _make_cmd { } {
 	lappend cmd "CPPFLAGS=$cppflags"
 	lappend cmd "CFLAGS=$cflags"
 	lappend cmd "CXXFLAGS=$cxxflags"
-	lappend cmd "LDFLAGS=$ldflags"
-	lappend cmd "LDLIBS=$ldlibs_common $ldlibs_exe"
-	lappend cmd "CXX=$cross_dev_prefix\g++"
-	lappend cmd "CC=$cross_dev_prefix\gcc"
+	lappend cmd "CXX=$cross_dev_prefix\g++ $spec_args"
+	lappend cmd "CC=$cross_dev_prefix\gcc $spec_args"
 	lappend cmd "CROSS_DEV_PREFIX=$cross_dev_prefix"
 	lappend cmd "-j$jobs"
-	lappend cmd "MAKE_SHARED_LINKER_FLAGS=$ldflags_so $ldlibs_common $ldlibs_so"
 	lappend cmd "PKG_CONFIG_LIBDIR=''"
 	lappend cmd "PKG_CONFIG_PATH=[join ${api_dirs} ":"]"
+
+	# keep MAKE_SHARED_LINKER_FLAGS for backward compatibility (replace by specs)
+	lappend cmd "MAKE_SHARED_LINKER_FLAGS=-shared"
 
 	if {$verbose == 0} {
 		lappend cmd "-s" }
@@ -33,23 +35,20 @@ proc _make_cmd { } {
 
 
 proc create_or_update_build_dir { } {
-	global config::build_dir
+	global config::build_dir spec_file
 
-	# compare make command and clear directory if anything changed
+	# compare make command and link spec, and clear directory if anything changed
 	set signature_file [file join $build_dir ".goa_make_command"]
 
-	set previous_cmd { }
-	set cmd [join [_make_cmd] { }]
+	set previous_cmd       [string trim [read_file_content $signature_file]]
+	set previous_link_spec [string trim [read_file_content $spec_file]]
 
-	# read previous command from file
-	if {[file exists $signature_file]} {
-		set fd [open $signature_file]
-		set previous_cmd [string trim [read $fd]]
-		close $fd
+	set cmd       [join [_make_cmd] { }]
+	set link_spec [string trim [read_file_content $spec_file]]
+
+	if {"$previous_cmd" != "$cmd" || "$previous_link_spec" != "$link_spec"} {
+		file delete -force $build_dir
 	}
-
-	if {"$previous_cmd" != "$cmd"} {
-		file delete -force $build_dir }
 
 	mirror_source_dir_to_build_dir
 
