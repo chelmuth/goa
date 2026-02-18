@@ -78,26 +78,22 @@ proc prepare_toolchain { } {
 proc build { } {
 
 	global verbose tool_dir rustup_home cargo_home cargo_path
-	global cppflags cflags cxxflags ldflags ldlibs_common ldlibs_exe
+	global cppflags cflags cxxflags spec_args
 	global config::build_dir config::cross_dev_prefix config::debug config::arch
 	global config::project_name config::jobs config::project_dir config::cc_march
 
 	if {$arch != "x86_64"} {
 		exit_with_error "Cargo/rust support is limited to x86_64." }
 
+	create_spec_file "" ""
+
 	set rustflags { }
+	foreach x $spec_args {
+		lappend rustflags -C link-arg=$x
+	}
+
 	set gcc_unwind [exec_tool_chain gcc $cc_march -print-file-name=libgcc_eh.a]
-	lappend ldflags $gcc_unwind
-
-	foreach x $ldflags {
-		lappend rustflags -C link-arg=$x
-	}
-
-	foreach x $ldlibs_common {
-		lappend rustflags -C link-arg=$x
-	}
-
-	foreach x $ldlibs_exe {
+	foreach x $gcc_unwind {
 		lappend rustflags -C link-arg=$x
 	}
 
