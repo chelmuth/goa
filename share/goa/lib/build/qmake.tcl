@@ -26,8 +26,7 @@ proc _qt_version { } {
 
 
 proc _qmake_build_cmd { qt_version qmake_platform } {
-	global cppflags cxxflags ldflags ldflags_so ldlibs_common
-	global ldlibs_exe ldlibs_so
+	global cppflags cxxflags spec_args
 	global config::build_dir
 	global config::cross_dev_prefix
 
@@ -40,12 +39,6 @@ proc _qmake_build_cmd { qt_version qmake_platform } {
 		append qmake_cflags "-I$build_dir/qmake_root/mkspecs/$qmake_platform"
 	}
 
-	set qmake_ldlibs { }
-	lappend qmake_ldlibs -l:libc.lib.so
-	lappend qmake_ldlibs -l:libm.lib.so
-	lappend qmake_ldlibs -l:stdcxx.lib.so
-	lappend qmake_ldlibs -l:${qt_version}_component.lib.so
-
 	set     cmd [sandboxed_build_command]
 	lappend cmd --setenv GENODE_QMAKE_CC           "${cross_dev_prefix}gcc"
 	lappend cmd --setenv GENODE_QMAKE_CXX          "${cross_dev_prefix}g++"
@@ -55,15 +48,8 @@ proc _qmake_build_cmd { qt_version qmake_platform } {
 	lappend cmd --setenv GENODE_QMAKE_NM           "${cross_dev_prefix}nm"
 	lappend cmd --setenv GENODE_QMAKE_STRIP        "${cross_dev_prefix}strip"
 	lappend cmd --setenv GENODE_QMAKE_CFLAGS       "$qmake_cflags"
-	lappend cmd --setenv GENODE_QMAKE_LFLAGS_APP   "$ldflags $ldlibs_common $ldlibs_exe $qmake_ldlibs"
-	lappend cmd --setenv GENODE_QMAKE_LFLAGS_SHLIB "$ldflags_so $ldlibs_common $ldlibs_so $qmake_ldlibs"
-
-	#
-	# libgcc must appear on the command line after all other libs
-	# (including those added by qmake) and using the QMAKE_LIBS
-	# variable achieves this, fortunately
-	#
-	lappend cmd --setenv GENODE_QMAKE_LIBS "-lgcc"
+	lappend cmd --setenv GENODE_QMAKE_LFLAGS_APP   "$spec_args"
+	lappend cmd --setenv GENODE_QMAKE_LFLAGS_SHLIB "$spec_args -shared"
 
 	return $cmd
 }
@@ -71,8 +57,7 @@ proc _qmake_build_cmd { qt_version qmake_platform } {
 
 proc create_or_update_build_dir { } {
 
-	global cppflags cxxflags ldflags ldflags_so ldlibs_common
-	global ldlibs_exe ldlibs_so
+	global cppflags cxxflags
 	global config::build_dir config::project_dir config::abi_dir
 	global config::cross_dev_prefix config::project_name
 	global config::toolchain_version
@@ -87,6 +72,14 @@ proc create_or_update_build_dir { } {
 
 	if {![file exists $build_dir]} {
 		file mkdir $build_dir }
+
+	set qmake_ldlibs { }
+	lappend qmake_ldlibs -l:libc.lib.so
+	lappend qmake_ldlibs -l:libm.lib.so
+	lappend qmake_ldlibs -l:stdcxx.lib.so
+	lappend qmake_ldlibs -l:${qt_version}_component.lib.so
+
+	create_spec_file $qmake_ldlibs $qmake_ldlibs
 
 	set orig_pwd [pwd]
 	cd $build_dir
