@@ -3,7 +3,7 @@ proc create_or_update_build_dir { } {
 
 	mirror_source_dir_to_build_dir
 
-	global cppflags cflags cxxflags ldflags ldflags_so ldlibs_common ldlibs_exe ldlibs_so api_dirs
+	global cppflags cflags cxxflags api_dirs spec_args
 	global config::build_dir config::cross_dev_prefix config::project_name
 	global config::project_dir
 
@@ -32,15 +32,7 @@ proc create_or_update_build_dir { } {
 		cd $orig_pwd
 	}
 
-	# remove "-Wl," and GCC-specific flags
-	set link_spec_exe [string map {"-Wl," "" "-nostartfiles" "" "-nodefaultlibs" ""} "$ldflags $ldlibs_common $ldlibs_exe"]
-	set link_spec_so [string map {"-Wl," "" "-nostartfiles" "" "-nodefaultlibs" ""} "$ldflags_so $ldlibs_common $ldlibs_so"]
-
-	set link_spec_fd [open "$build_dir/link_spec" w]
-	puts $link_spec_fd "*link:"
-	puts $link_spec_fd "+ %{!shared: $link_spec_exe} \\"
-	puts $link_spec_fd "%{shared: $link_spec_so}"
-	close $link_spec_fd
+	create_spec_file "" ""
 
 	set     cmd [goa::sandboxed_build_command]
 
@@ -50,8 +42,8 @@ proc create_or_update_build_dir { } {
 	lappend cmd "CPPFLAGS=$cppflags"
 	lappend cmd "CFLAGS=$cflags"
 	lappend cmd "CXXFLAGS=$cxxflags"
-	lappend cmd "CXX=${cross_dev_prefix}g++ -specs $build_dir/link_spec -nostartfiles -nodefaultlibs"
-	lappend cmd "CC=${cross_dev_prefix}gcc -specs $build_dir/link_spec -nostartfiles -nodefaultlibs"
+	lappend cmd "CXX=${cross_dev_prefix}g++ $spec_args"
+	lappend cmd "CC=${cross_dev_prefix}gcc $spec_args"
 	lappend cmd "STRIP=${cross_dev_prefix}strip"
 	lappend cmd "RANLIB=${cross_dev_prefix}ranlib"
 	lappend cmd "AR=${cross_dev_prefix}ar"
@@ -86,7 +78,7 @@ proc create_or_update_build_dir { } {
 
 proc build { } {
 
-	global verbose ldlibs_common ldlibs_exe ldlibs_so
+	global verbose
 	global config::build_dir config::project_name config::jobs config::project_dir
 
 	set     cmd [goa::sandboxed_build_command]
