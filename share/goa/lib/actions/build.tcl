@@ -144,6 +144,49 @@ namespace eval goa {
 		return 0
 	}
 
+	##
+	# write GCC spec file and store arguments to use it in 'spec_args'
+	# 
+	proc create_spec_file { extra_libs_exe extra_libs_so } {
+		global ldflags ldflags_so ldlibs_common ldlibs_exe ldlibs_so
+		global spec_args spec_file config::build_dir
+
+		#
+		# build link spec string from flags by removing -Wl and non-linker flags
+		# 
+		set replace {"-Wl," "" "-nostartfiles" "" "-nodefaultlibs" "" "-lgcc" ""}
+		set link_spec_exe [string map $replace "$ldflags    $ldlibs_common $ldlibs_exe"]
+		set link_spec_so  [string map $replace "$ldflags_so $ldlibs_common $ldlibs_so"]
+
+		if {![file exists $build_dir]} {
+			file mkdir $build_dir }
+		
+		set fd [open $spec_file w]
+
+		# append Goa's linker arguments to link spec
+		puts $fd "*link:"
+		puts $fd "+ %{!shared: $link_spec_exe $extra_libs_exe} \\"
+		puts $fd "%{shared: $link_spec_so $extra_libs_so}"
+		puts $fd ""
+
+		# clear startfile spec
+		puts $fd "*startfile:"
+		puts $fd "%(dummy)"
+		puts $fd ""
+
+		# replace endfile spec with libgcc to insert -lgcc at the
+		# end of the linker command line
+		puts $fd "*endfile:"
+		puts $fd "%(libgcc)"
+		puts $fd ""
+
+		# clear lib spec in case '-nodefaultlibs' gets lost
+		puts $fd "*lib:"
+		puts $fd "%(dummy)"
+		close $fd
+
+		set spec_args "-specs $spec_file -nodefaultlibs"
+	}
 
 	##
 	# strip debug symbols from binary
@@ -360,7 +403,7 @@ namespace eval goa {
 	#
 	proc build-dir { } {
 
-		global tool_dir
+		global tool_dir spec_file
 		global config::cross_dev_prefix config::depot_dir config::rebuild
 		global config::arch config::olevel config::cc_march config::debug
 		global config::cc_cxx_opt_std config::ld_march config::abi_dir
@@ -381,6 +424,8 @@ namespace eval goa {
 
 		set build_system [detect_build_system]
 		diag "build system: $build_system"
+
+		set spec_file [file join $build_dir "genode.spec"]
 
 		source [file join $tool_dir lib build $build_system.tcl]
 
