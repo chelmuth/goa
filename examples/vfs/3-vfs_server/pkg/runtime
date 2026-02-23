@@ -11,14 +11,12 @@ runtime | ram: 10M | caps: 1000 | binary: init
   |   + parent
   |   + any-child
   + default | caps: 100
-  + start report_rom
-  | + resource RAM | quantum: 1M
+  + start report_rom | ram: 1M
   | + provides
   | | + service Report
   | | + service ROM
   | + config | verbose: yes
-  + start vfs
-  | + resource RAM | quantum: 2M
+  + start vfs | ram: 2M
   | + provides
   | | + service File_system
   | + config
@@ -36,8 +34,7 @@ runtime | ram: 10M | caps: 1000 | binary: init
   |   |   |   + forward | to: 10.0.0.1
   |   |   + inline dns_servers
   |   + default-policy | root: /config | writeable: no
-  + start fs_query | caps: 120
-    + resource RAM | quantum: 2M
+  + start fs_query | caps: 120 | ram: 2M
     + config
       + vfs
       | + inline verbose

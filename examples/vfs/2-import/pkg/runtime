@@ -11,8 +11,7 @@ runtime | ram: 10M | caps: 1000 | binary: init
   |   + parent
   |   + any-child
   + default | caps: 100
-  + start 2-import | caps: 120
-    + resource RAM | quantum: 2M
+  + start 2-import | caps: 120 | ram: 2M
     + config
       + libc | stdout: /dev/log
       + vfs

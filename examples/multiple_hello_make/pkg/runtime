@@ -11,12 +11,10 @@ runtime | ram: 10M | caps: 1000 | binary: init
   + default-route
   | + any-service
   |   + parent
-  + start one | caps: 100
+  + start one | caps: 100 | ram: 1M
   | + binary hello
-  | + resource RAM | quantum: 1M
   | + config
-  + start two | caps: 100
+  + start two | caps: 100 | ram: 1M
     + binary hello
-    + resource RAM | quantum: 1M
     + config
 -

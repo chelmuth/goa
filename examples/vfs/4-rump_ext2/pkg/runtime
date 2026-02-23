@@ -14,14 +14,12 @@ runtime | ram: 40M | caps: 1000 | binary: init
   |   + parent
   |   + any-child
   + default | caps: 100
-  + start report_rom
-  | + resource RAM | quantum: 1M
+  + start report_rom | ram: 1M
   | + provides
   | | + service Report
   | | + service ROM
   | + config | verbose: yes
-  + start vfs_block
-  | + resource RAM | quantum: 12M
+  + start vfs_block | ram: 12M
   | + provides
   | | + service Block
   | + config
@@ -34,8 +32,7 @@ runtime | ram: 40M | caps: 1000 | binary: init
   |            file:         /disk
   |            block_size:   512
   |            writeable:    yes
-  + start vfs | caps: 150
-  | + resource RAM | quantum: 20M
+  + start vfs | caps: 150 | ram: 20M
   | + provides
   | | + service File_system
   | + config
@@ -43,17 +40,15 @@ runtime | ram: 40M | caps: 1000 | binary: init
   |   | + rump | fs: ext2fs | ram: 8M
   |   + default-policy | root: / | writeable: no
   |   + policy | label_prefix: app | root: / | writeable: yes
-  + start app
+  + start app | ram: 2M
   | + binary 4-rump_ext2
-  | + resource RAM | quantum: 2M
   | + config
   |   + libc | stdout: /dev/log
   |   + vfs
   |     + dir dev
   |     | + log
   |     + fs
-  + start fs_query | caps: 120
-    + resource RAM | quantum: 2M
+  + start fs_query | caps: 120 | ram: 2M
     + config
       + vfs
       | + fs

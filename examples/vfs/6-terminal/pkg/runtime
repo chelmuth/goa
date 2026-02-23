@@ -14,13 +14,11 @@ runtime | ram: 16M | caps: 1000 | binary: init
   |   + parent
   |   + any-child
   + default | caps: 100
-  + start terminal_crosslink
-  | + resource RAM | quantum: 4M
+  + start terminal_crosslink | ram: 4M
   | + provides
   |   + service Terminal
-  + start producer
+  + start producer | ram: 4M
   | + binary stdin2out
-  | + resource RAM | quantum: 4M
   | + config
   |   + vfs
   |   | + inline source.txt
@@ -29,9 +27,8 @@ runtime | ram: 16M | caps: 1000 | binary: init
   |   | + dir dev
   |   |   + terminal
   |   + libc | stdin: /source.txt | stdout: /dev/terminal
-  + start consumer
+  + start consumer | ram: 4M
     + binary stdin2out
-    + resource RAM | quantum: 4M
     + config
       + vfs
       | + dir dev

@@ -14,17 +14,15 @@ runtime | ram: 16M | caps: 1000 | binary: init
   |   + parent
   |   + any-child
   + default | caps: 100
-  + start nic_router
-  | + resource RAM | quantum: 2M
+  + start nic_router | ram: 2M
   | + provides
   | | + service Nic
   | | + service Uplink
   | + config | verbose_domain_state: yes
   |   + default-policy | domain: default
   |   + domain default | interface: 10.0.2.1/24
-  + start sender
+  + start sender | ram: 8M
   | + binary 7-lwip
-  | + resource RAM | quantum: 8M
   | + config
   |   + vfs
   |   | + dir dev
@@ -38,9 +36,8 @@ runtime | ram: 16M | caps: 1000 | binary: init
   |   + libc | stdout: /dev/log | socket: /dev/socket
   |   + arg | value: sendto
   |   + arg | value: 10.0.2.3
-  + start receiver
+  + start receiver | ram: 8M
     + binary 7-lwip
-    + resource RAM | quantum: 8M
     + config
       + vfs
       | + dir dev

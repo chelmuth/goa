@@ -59,7 +59,7 @@ of a single component with an empty configuration and no required services:
 ! -
 
 A more advanced scenario resides at
-_examples/hello_make/multiple_hello_make/pkg/runtime_. It uses the init
+_examples/multiple_hello_make/pkg/runtime_. It uses the init
 binary to create a subsystem comprising multiple components:
 
 ! runtime | ram: 10M | caps: 1000 | binary: init
@@ -75,13 +75,11 @@ binary to create a subsystem comprising multiple components:
 !   + default-route
 !   | + any-service
 !   |   + parent
-!   + start one | caps: 100
+!   + start one | caps: 100 | ram: 1M
 !   | + binary hello
-!   | + resource RAM | quantum: 1M
 !   | + config
-!   + start two | caps: 100
+!   + start two | caps: 100 | ram: 1M
 !     + binary hello
-!     + resource RAM | quantum: 1M
 !     + config
 ! -
 

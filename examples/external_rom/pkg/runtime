@@ -12,8 +12,7 @@ runtime | ram: 16M | caps: 1000 | binary: init
   | + service PD
   | + service RM
   | + service ROM
-  + start report_rom | caps: 100
-  | + resource RAM | quantum: 1M
+  + start report_rom | caps: 100 | ram: 1M
   | + provides
   | | + service Report
   | | + service ROM
@@ -21,8 +20,7 @@ runtime | ram: 16M | caps: 1000 | binary: init
   | + route
   |   + any-service
   |     + parent
-  + start rom_reporter | caps: 100
-    + resource RAM | quantum: 2M
+  + start rom_reporter | caps: 100 | ram: 2M
     + config
     | + rom | label: input
     + route
