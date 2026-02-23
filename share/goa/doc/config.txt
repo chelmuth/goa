@@ -267,8 +267,8 @@ Goa evaluates the following configuration variables.
   '/goarc'. Alternatively, you may set the environment variable DISABLE_SANDBOX.
 
 :hid:
-  By default, Goa generates the runtime config in XML syntax. By setting
-  this config variable to 1, Goa will use HID syntax. Alternatively, HID
+  By default, Goa generates the runtime config in HID syntax. By setting
+  this config variable to 0, Goa will use XML syntax. Alternatively, HID
   generation can be disabled or enabled via the command-line switches
   *--no-hid* and *--hid*.
 
