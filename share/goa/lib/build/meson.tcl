@@ -68,9 +68,24 @@ proc create_cross_file { dir } {
 }
 
 
+proc retrieve_rpath_link { } {
+	global project_dir
+
+	set rpath_link { }
+	foreach arg [read_file_content_as_list [file join $project_dir rpath_link]] {
+
+		# escape $ at beginning of line with \ (e.g., for $ORIGIN)
+		if {[regexp {^\$} $arg]} { regsub {^\$} $arg "\\$" arg }
+		lappend rpath_link $arg
+	}
+
+	return $rpath_link
+}
+
+
 proc create_or_update_build_dir { } {
 	global cppflags cflags cxxflags
-	global ldflags ldlibs_exe ldlibs_common
+	global spec_args
 	global config::build_dir project_dir config::abi_dir project_name
 	global config::cross_dev_prefix config::cc_cxx_opt_std config::debug
 
@@ -125,12 +140,19 @@ proc create_or_update_build_dir { } {
 	lappend cmd "-Dcpp_args=$cxxflags $cppflags"
 	lappend cmd "-Dcpp_std=[lindex [split $cc_cxx_opt_std =/] 1]"
 
+	set rpath_link [retrieve_rpath_link]
+	set link_args ""
+	if {[llength $rpath_link] > 0} {
+		set link_args -rpath-link=[join $rpath_link :]
+	}
+
+	create_spec_file $link_args $link_args
+
 	#
-	# Used for feature testing compiles, since these are usally 'main' test builds
-	# use executable version
+	# Used for feature testing compiles
 	#
-	lappend cmd "-Dc_link_args=$ldflags $ldlibs_exe $ldlibs_common"
-	lappend cmd "-Dcpp_link_args=$ldflags $ldlibs_exe $ldlibs_common"
+	lappend cmd "-Dc_link_args=$spec_args"
+	lappend cmd "-Dcpp_link_args=$spec_args"
 
 
 	# add project-specific arguments read from 'meson_args' file
@@ -152,128 +174,20 @@ proc create_or_update_build_dir { } {
 }
 
 
-proc retrieve_build_targets { json shared } {
-	set targets { }
-
-	foreach item $json {
-		dict with item {
-			# skip targets that will not be installed
-			if {!$installed} { continue }
-
-			if {$shared  && $type == "shared library"} { lappend targets $name }
-			if {!$shared && $type != "shared library"} { lappend targets $name }
-		}
-	}
-
-	return $targets
-}
-
-
-proc retrieve_rpath_link { } {
-	global project_dir
-
-	set rpath_link { }
-	foreach arg [read_file_content_as_list [file join $project_dir rpath_link]] {
-
-		# escape $ at beginning of line with \ (e.g., for $ORIGIN)
-		if {[regexp {^\$} $arg]} { regsub {^\$} $arg "\\$" arg }
-		lappend rpath_link $arg
-	}
-
-	return $rpath_link
-}
-
-
-proc build_targets { targets link_args shared } {
+proc build { } {
 	global verbose
-	global config::build_dir config::jobs
-	global project_dir project_name
-	global ldflags ldflags_so ldlibs_common ldlibs_exe ldlibs_so
+	global config::build_dir project_name
+	global config::jobs
+	global spec_args
 
-	# configure build directory for executable or shared library build
-	set     cmd [sandboxed_build_command]
-	lappend cmd meson configure
-
-	# put ldlibs_common last in order to have -lgcc at the end of command line
-	if {$shared} {
-
-		#
-		# Filter out -Wl,-shared because it will be added by Meson and stands in the
-		# way of Meson's build tests because tests will succeed linking with
-		# undefined symbols
-		#
-		set libs_so ""
-		regsub {\-Wl,\-shared} $ldlibs_so "" libs_so
-
-		lappend cmd "\"-Dc_link_args=$ldflags_so $libs_so $link_args $ldlibs_common\""
-		lappend cmd "\"-Dcpp_link_args=$ldflags_so $libs_so $link_args $ldlibs_common\""
-	} else {
-		lappend cmd "\"-Dc_link_args=$ldflags $ldlibs_exe $link_args $ldlibs_common\""
-		lappend cmd "\"-Dcpp_link_args=$ldflags $ldlibs_exe $link_args $ldlibs_common\""
-	}
-
-	lappend cmd $build_dir
-
-	diag "reconfigure: shared-library build: $shared"
-	if {[catch {exec -ignorestderr {*}$cmd | sed "s/^/\[$project_name:meson\] /" >@ stdout} msg]} {
-		exit_with_error "configure via meson failed:\n" $msg }
-
-	diag "commit: configuration"
-	exec -ignorestderr {*}[sandboxed_build_command] meson setup --reconfigure $build_dir $project_dir/src
-
-	# Meson uses gcc/g++ -shared to create shared libraries, this does not work
-	# with our tool chain on arm_v8a and produces an executable instead of a
-	# shared library. Replace all occurences of -shared by -Wl,-shared in the
-	# resulting Ninja build file because I don't see another way at the moment.
-	#
-	# TODO: find out why -shared doesn't work with Genode's aarch64 toolchain
-	diag "hack: patching build.ninja with -Wl,-shared"
-	exec sed -i "s/ -shared/ -Wl,-shared/g" $build_dir/build.ninja
-
-	# build
 	diag "build:"
 	set     cmd [sandboxed_build_command]
-	lappend cmd meson compile -C $build_dir -j $jobs {*}$targets
+	lappend cmd meson compile -C $build_dir -j $jobs
 
 	if {$verbose} { lappend cmd "--verbose" }
 
 	if {[catch {exec -ignorestderr {*}$cmd | sed "s/^/\[$project_name:meson\] /" >@ stdout} msg]} {
 		exit_with_error "build via meson failed:\n" $msg }
-}
-
-
-proc build { } {
-	global verbose tool_dir
-	global config::build_dir project_name
-
-	set link_args ""
-	set rpath_link [retrieve_rpath_link]
-	if {[llength $rpath_link] > 0} {
-		set link_args -Wl,-rpath-link=[join $rpath_link :]
-	}
-
-	# json parser from tcllib
-	source [file join $tool_dir lib tcllib json.tcl]
-
-	# retrieve build targets (1 -> enforce silent since we read stdout)
-	diag "retrieving build information using meson introspect ..."
-	set     json_cmd [sandboxed_build_command 1]
-	lappend json_cmd meson introspect -i --targets $build_dir
-
-	set json      [exec -ignorestderr {*}$json_cmd]
-	set json_dict [::json::json2dict $json]
-
-	# configure and build executables
-	set targets [retrieve_build_targets $json_dict false]
-	diag "building [llength $targets] executables: $targets"
-
-	if {[llength $targets] > 0} { build_targets $targets $link_args false }
-
-	# configure and build shared libraries
-	set targets [retrieve_build_targets $json_dict true]
-	diag "building [llength $targets] shared libraries: $targets"
-
-	if {[llength $targets] > 0} { build_targets $targets $link_args true }
 
 	# install
 	set     cmd [sandboxed_build_command]
