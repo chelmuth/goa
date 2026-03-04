@@ -434,21 +434,17 @@ namespace eval gaol {
 				lappend bwrap_cmd --setenv XDG_RUNTIME_DIR "$run_dir"
 			}
 
-			set pipeargs {}
-			set fdnum 11
 			if {[info exists sq_keys] && $sq_keys} {
-				if {![info exists depot]} {
-					return -code error "missing --depot-dir argument (required for --user-sq)" }
+				# query keystore path from sequoia config
+				set keystore_path [exec sq config inspect paths | grep -A1 "\\- key store" \
+				                   | tail -n1 | sed "s/\[ \]\\+-\[ \]\\+//"]
+				set softkey_path  [file join $keystore_path softkeys]
 
-				set pubkey_files [exec find $depot -maxdepth 2 -type f -name pubkey]
-				foreach f $pubkey_files {
-					set fingerprint [string trimleft [exec sq inspect $f 2> /dev/null | grep Fingerprint | cut -d: -f2]]
-					if {[catch {exec sq key export --cert $fingerprint}]} { continue }
+				# make keystore writeable for keystore.cookie
+				lappend bwrap_cmd --dir $keystore_path
 
-					lappend bwrap_cmd --perms 0400 --ro-bind-data $fdnum /sequoia/softkeys/$fingerprint
-					lappend pipeargs $fdnum< "<(sq key export --cert $fingerprint | sq key password --clear-password --cert-file -)"
-					incr fdnum
-				}
+				# ro bind softkey path
+				lappend robinds $softkey_path $softkey_path
 			}
 
 			# sort robinds by target paths in reverse order
@@ -502,9 +498,6 @@ namespace eval gaol {
 				lappend quoted_args "\"$arg\""
 			} else {
 				lappend quoted_args $arg }}
-
-		if {!$no_bwrap} {
-			lappend quoted_args {*}$pipeargs }
 
 		if {[dict get $state verbose]} {
 			puts "Executing: [join $quoted_args { }]" }
