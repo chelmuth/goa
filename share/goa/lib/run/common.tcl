@@ -216,8 +216,10 @@ proc generate_runtime_config { runtime_file &runtime_archives &rom_modules } {
 
 	# assemble list of rom modules from project's runtime file and all runtime
 	# files in the referenced pkg archives
-	set rom_modules [query attributes $runtime_file "runtime | + content | + rom | : label"]
+	set     rom_modules    [query attributes $runtime_file "runtime | + content | + rom | : name"]
+	lappend rom_modules {*}[query attributes $runtime_file "runtime | + content | + rom | : label"]
 	foreach runtime_file [runtime_files [apply_versions $runtime_archives]] {
+		lappend rom_modules {*}[query attributes $runtime_file "runtime | + content | + rom | : name"]
 		lappend rom_modules {*}[query attributes $runtime_file "runtime | + content | + rom | : label"]
 	}
 
@@ -227,7 +229,7 @@ proc generate_runtime_config { runtime_file &runtime_archives &rom_modules } {
 	if {[lsearch -exact $rom_modules $binary] < 0 &&
 		 [lsearch -exact $default_rom_modules $binary] < 0} {
 		exit_with_error "Binary '$binary' not mentioned as content ROM module. \n" \
-		                "\n You either need to add 'rom label: \"$binary\"' to the content ROM list" \
+		                "\n You either need to add 'rom \"$binary\"' to the content ROM list" \
 		                "\n or add a pkg archive to the 'archives' file from which to inherit."
 	}
 
