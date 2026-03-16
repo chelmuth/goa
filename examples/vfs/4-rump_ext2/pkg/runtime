@@ -54,18 +54,18 @@ runtime | ram: 40M | caps: 1000 | binary: init
       | + fs
       + query | path: / | content: yes | size: yes
 + content
-  + rom | label: fs_query
-  + rom | label: report_rom
-  + rom | label: vfs
-  + rom | label: vfs_block
-  + rom | label: vfs.lib.so
-  + rom | label: vfs_import.lib.so
-  + rom | label: vfs_rump.lib.so
-  + rom | label: rump.lib.so
-  + rom | label: rump_fs.lib.so
-  + rom | label: disk_ext2.img
-  + rom | label: 4-rump_ext2
-  + rom | label: posix.lib.so
-  + rom | label: libc.lib.so
-  + rom | label: libm.lib.so
+  + rom fs_query
+  + rom report_rom
+  + rom vfs
+  + rom vfs_block
+  + rom vfs.lib.so
+  + rom vfs_import.lib.so
+  + rom vfs_rump.lib.so
+  + rom rump.lib.so
+  + rom rump_fs.lib.so
+  + rom disk_ext2.img
+  + rom 4-rump_ext2
+  + rom posix.lib.so
+  + rom libc.lib.so
+  + rom libm.lib.so
 -

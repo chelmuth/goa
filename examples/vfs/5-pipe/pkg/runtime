@@ -42,11 +42,11 @@ runtime | ram: 16M | caps: 1000 | binary: init
       |   + fs
       + libc | stdin: /pipe/named-pipe | stdout: /dev/log
 + content
-  + rom | label: vfs
-  + rom | label: vfs.lib.so
-  + rom | label: vfs_pipe.lib.so
-  + rom | label: stdin2out
-  + rom | label: posix.lib.so
-  + rom | label: libc.lib.so
-  + rom | label: libm.lib.so
+  + rom vfs
+  + rom vfs.lib.so
+  + rom vfs_pipe.lib.so
+  + rom stdin2out
+  + rom posix.lib.so
+  + rom libc.lib.so
+  + rom libm.lib.so
 -

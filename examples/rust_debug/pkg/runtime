@@ -6,9 +6,9 @@ runtime | ram: 10M | caps: 1000 | binary: rust-debug
   |   + log
   + arg | value: rust-debug
 + content
-  + rom | label: rust-debug
-  + rom | label: posix.lib.so
-  + rom | label: libc.lib.so
-  + rom | label: libm.lib.so
-  + rom | label: vfs.lib.so
+  + rom rust-debug
+  + rom posix.lib.so
+  + rom libc.lib.so
+  + rom libm.lib.so
+  + rom vfs.lib.so
 -

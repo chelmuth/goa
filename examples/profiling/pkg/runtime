@@ -6,9 +6,9 @@ runtime | ram: 2M | caps: 1000 | binary: profiling
     + vfs
       + dir dev | + log
   + content
-    + rom | label: profiling
-    + rom | label: vfs.lib.so
-    + rom | label: libc.lib.so
-    + rom | label: libm.lib.so
-    + rom | label: posix.lib.so
+    + rom profiling
+    + rom vfs.lib.so
+    + rom libc.lib.so
+    + rom libm.lib.so
+    + rom posix.lib.so
 -

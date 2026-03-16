@@ -35,7 +35,7 @@ runtime | ram: 10M | caps: 1000 | binary: init
       + query | path: /config | content: yes | size: yes
       + query | path: /config/udp_ports | content: yes | size: yes
 + content
-  + rom | label: fs_query
-  + rom | label: report_rom
-  + rom | label: vfs.lib.so
+  + rom fs_query
+  + rom report_rom
+  + rom vfs.lib.so
 -

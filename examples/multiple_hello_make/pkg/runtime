@@ -1,7 +1,7 @@
 runtime | ram: 10M | caps: 1000 | binary: init
 + content
-  + rom | label: init
-  + rom | label: hello
+  + rom init
+  + rom hello
 + config
   + parent-provides
   | + service ROM

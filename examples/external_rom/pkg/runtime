@@ -1,10 +1,10 @@
 runtime | ram: 16M | caps: 1000 | binary: init
 + requires
-  + rom | label: input
+  + rom input
 + content
-  + rom | label: init
-  + rom | label: report_rom
-  + rom | label: rom_reporter
+  + rom init
+  + rom report_rom
+  + rom rom_reporter
 + config
   + parent-provides
   | + service CPU

@@ -1,6 +1,6 @@
 runtime | ram: 64M | caps: 500 | binary: test-qt_core
 + requires
-  + rom | label: mesa_gpu.lib.so
+  + rom mesa_gpu.lib.so
   + gpu
   + timer
 + config
@@ -13,28 +13,28 @@ runtime | ram: 64M | caps: 500 | binary: test-qt_core
   + libc | stdout: /dev/log | stderr: /dev/log | pipe: /pipe | rtc: /dev/rtc
   + arg | value: test-qt_core
 + content
-  + rom | label: egl.lib.so
-  + rom | label: expat.lib.so
-  + rom | label: glapi.lib.so
-  + rom | label: libc.lib.so
-  + rom | label: libm.lib.so
-  + rom | label: libQt5Core.lib.so
-  + rom | label: libQt5Gui.lib.so
-  + rom | label: libQt5Network.lib.so
-  + rom | label: libQt5PrintSupport.lib.so
-  + rom | label: libQt5Sql.lib.so
-  + rom | label: libQt5Svg.lib.so
-  + rom | label: libQt5Test.lib.so
-  + rom | label: libQt5Widgets.lib.so
-  + rom | label: libQt5Xml.lib.so
-  + rom | label: libqgenode.lib.so
-  + rom | label: libdrm.lib.so
-  + rom | label: mesa.lib.so
-  + rom | label: qt5_component.lib.so
-  + rom | label: stdcxx.lib.so
-  + rom | label: vfs.lib.so
-  + rom | label: vfs_gpu.lib.so
-  + rom | label: vfs_pipe.lib.so
-  + rom | label: zlib.lib.so
-  + rom | label: test-qt_core
+  + rom egl.lib.so
+  + rom expat.lib.so
+  + rom glapi.lib.so
+  + rom libc.lib.so
+  + rom libm.lib.so
+  + rom libQt5Core.lib.so
+  + rom libQt5Gui.lib.so
+  + rom libQt5Network.lib.so
+  + rom libQt5PrintSupport.lib.so
+  + rom libQt5Sql.lib.so
+  + rom libQt5Svg.lib.so
+  + rom libQt5Test.lib.so
+  + rom libQt5Widgets.lib.so
+  + rom libQt5Xml.lib.so
+  + rom libqgenode.lib.so
+  + rom libdrm.lib.so
+  + rom mesa.lib.so
+  + rom qt5_component.lib.so
+  + rom stdcxx.lib.so
+  + rom vfs.lib.so
+  + rom vfs_gpu.lib.so
+  + rom vfs_pipe.lib.so
+  + rom zlib.lib.so
+  + rom test-qt_core
 -

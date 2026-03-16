@@ -2,5 +2,5 @@ index
 + supports | arch: x86_64
 + supports | arch: arm_v8a
 + index Test
-  + pkg | path: dependent_hello | info: Re-use hello_posix
+  + pkg dependent_hello | info: Re-use hello_posix
 -

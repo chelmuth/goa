@@ -42,8 +42,8 @@ runtime | ram: 10M | caps: 1000 | binary: init
       | + fs
       + query | path: / | content: yes | size: yes
 + content
-  + rom | label: fs_query
-  + rom | label: report_rom
-  + rom | label: vfs
-  + rom | label: vfs.lib.so
+  + rom fs_query
+  + rom report_rom
+  + rom vfs
+  + rom vfs.lib.so
 -
