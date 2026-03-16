@@ -131,6 +131,8 @@ if {$perform(archive-versions)} {
 if {![looks_like_goa_project_dir $project_dir] && ![has_src_but_no_artifacts $project_dir]} {
 	exit_with_error "$project_dir does not look like a goa project" }
 
+log_project_dir_deprecations $project_dir
+
 ##
 # Compare with exported/published archive
 # 

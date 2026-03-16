@@ -250,6 +250,24 @@ proc has_src_but_no_artifacts { dir } {
 
 
 ##
+# Return 1 if project directory uses a deprecated directory structure
+# 
+proc log_project_dir_deprecations { dir } {
+	# check for deprecated runtime files in pkg/*/
+	set name [file tail $dir]
+	if {[file exists $dir/pkg/$name/runtime]} {
+		log "Project still hosts its runtime file at pkg/$name/, which is no longer supported!" \
+		    "\n\nPlease move the files from pkg/$name/ into pkg/" \
+		    "\nYou may also create separate projects for any remaining" \
+		    "\nruntime scenarios under pkg/\n"
+		return 1
+	}
+
+	return 0
+}
+
+
+##
 # Return 1 if directory is considered as goa project
 #
 proc looks_like_goa_project_dir { dir } {
@@ -275,15 +293,6 @@ proc looks_like_goa_project_dir { dir } {
 	foreach name [list src pkg raw] {
 		if {[file exists $dir/$name] && ![file isdirectory $dir/$name]} {
 			return 0 } }
-
-	# check for deprecated runtime files in pkg/*/
-	set name [file tail $dir]
-	if {[file exists $dir/pkg/$name/runtime]} {
-		log "Project still hosts its runtime file at pkg/$name/, which is no longer supported!" \
-		    "\n\nPlease move the files from pkg/$name/ into pkg/" \
-		    "\nYou may also create separate projects for any remaining" \
-		    "\nruntime scenarios under pkg/\n"
-	}
 
 	# no project if there is no runtime file in 'pkg/'
 	if {[file exists $dir/pkg] && ![file isfile $dir/pkg/runtime]} {
