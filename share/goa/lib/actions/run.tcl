@@ -95,7 +95,7 @@ namespace eval goa {
 			exit_with_error "missing runtime configuration at: $runtime_file" }
 	
 		# check runtime file against hsd
-		hid check $runtime_file "runtime"
+		hid check $runtime_file "pkg_runtime"
 
 		# check syntax config files at raw/ against
 		foreach config_file [glob -nocomplain [file join raw *.config]] {

@@ -730,7 +730,7 @@ namespace eval goa {
 		# check runtime file against hsd
 		set runtime_file [file join $pkg_dir runtime]
 		if {[file exists $runtime_file]} {
-			hid check $runtime_file "runtime" }
+			hid check $runtime_file "pkg_runtime" }
 
 		set runtime_archives [versioned_runtime_archives]
 
