@@ -540,15 +540,23 @@ namespace eval goa {
 					api -
 					src -
 					pkg {
-						node with-attribute $subnode "path" path {
+						node with-attribute $subnode "name" name {
+							set archive_path $name
+						} with-attribute $subnode "path" path {
+							set archive_path $path
+						} default {
+							set archive_path ""
+						}
+
+						if { $archive_path != "" } {
 							try {
-								archive_parts $path user type name vers
-								set archive $path
+								archive_parts $archive_path user type name vers
+								set archive $archive_path
 							} trap INVALID_ARCHIVE { } {
-								set archive "$depot_user/$node_type/$path"
+								set archive "$depot_user/$node_type/$archive_path"
 							} on error { msg } { error $msg $::errorInfo }
 
-							set tmp "  + $node_type | path: [apply_versions $archive]"
+							set tmp "  + $node_type [apply_versions $archive]"
 							node with-attribute $subnode "info" info {
 								append tmp " | info: $info"
 							} default { }
@@ -558,7 +566,7 @@ namespace eval goa {
 							} default { }
 
 							hid append result $tmp
-						} default { }
+						}
 					}
 					supports {
 						node with-attribute $subnode "arch" arch {

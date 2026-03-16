@@ -5,15 +5,18 @@ schema index
 
 + category archive
   + node pkg
-    + attr path | type: any
+    + attr name | type: any | default:
+    + attr path | type: any | default: | . same as 'name'
     + attr info | type: any
     + attr arch | type: arch | default:
   + node src
-    + attr path | type: any
+    + attr name | type: any | default:
+    + attr path | type: any | default: | . same as 'name'
     + attr info | type: any
     + attr arch | type: arch | default:
   + node api
-    + attr path | type: any
+    + attr name | type: any | default:
+    + attr path | type: any | default: | . same as 'name'
     + attr info | type: any
     + attr arch | type: arch | default:
 

@@ -89,7 +89,15 @@ namespace eval goa {
 					set subarchs $archs
 				}
 
-				node with-attribute $subnode "path" value {
+				node with-attribute $subnode "name" value {
+					try {
+						archive_user $value
+					} trap INVALID_ARCHIVE { } {
+						set value $depot_user/$type/$value
+					} on error { msg } { error $msg $::errorInfo }
+					
+					lappend result $value $subarchs
+				} with-attribute $subnode "path" value {
 					try {
 						archive_user $value
 					} trap INVALID_ARCHIVE { } {
@@ -98,7 +106,7 @@ namespace eval goa {
 				
 					lappend result $value $subarchs
 				} default {
-					exit_with_error "Missing 'path' attribute for '$type' node in index file"
+					exit_with_error "Missing name attribute for '$type' node in index file"
 				}
 			}
 
