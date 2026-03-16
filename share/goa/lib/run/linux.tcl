@@ -69,7 +69,9 @@ proc bind_provided_services { &services } {
 		if { [llength ${services(uplink)}] > 1 } {
 			log "Ignoring all but the first provided 'uplink' service." }
 
-		node with-attribute [lindex ${services(uplink)} 0] "label" uplink_label {
+		node with-attribute [lindex ${services(uplink)} 0] "name" uplink_name {
+			_instantiate_uplink_client $uplink_name start_nodes archives modules
+		} with-attribute [lindex ${services(uplink)} 0] "label" uplink_label {
 			_instantiate_uplink_client $uplink_label start_nodes archives modules
 		} default {
 			_instantiate_uplink_client "" start_nodes archives modules
@@ -169,7 +171,9 @@ proc bind_required_services { &services } {
 					exit_with_error "Too many 'nic' requirements" }
 			}
 
-			node with-attribute $nic_node "label" nic_label {
+			node with-attribute $nic_node "name" nic_name {
+				hid append routes "+ service Nic | label: $nic_name"
+			} with-attribute $nic_node "label" nic_label {
 				hid append routes "+ service Nic | label: $nic_label"
 			} default {
 				hid append routes "+ service Nic"
@@ -184,32 +188,39 @@ proc bind_required_services { &services } {
 	# instantiate file systems
 	if {[info exists services(file_system)]} {
 		foreach fs_node $services(file_system) {
-			variable label writeable name
+			variable name writeable start_name
 
-			set label     ""
-			set writeable "no"
-			set name      "fs"
+			set name       ""
+			set writeable  "no"
+			set start_name "fs"
 
-			node with-attribute $fs_node "label" value {
-				set label $value
-				set name "${label}_fs"
+			node with-attribute $fs_node "writeable" value {
+				set writeable $value
+			} default { }
 
-				node with-attribute $fs_node "writeable" value {
-					set writeable $value
-				} default { }
+			node with-attribute $fs_node "name" value {
+				set name        $value
+				set start_name "${name}_fs"
 
-				hid append routes "+ service File_system | label_prefix: $label ->"
-				hid append routes "  + child $name"
+				hid append routes "+ service File_system | label_prefix: $name ->"
+				hid append routes "  + child $start_name"
+
+			} with-attribute $fs_node "label" value {
+				set name        $value
+				set start_name "${name}_fs"
+
+				hid append routes "+ service File_system | label_prefix: $name ->"
+				hid append routes "  + child $start_name"
 
 			} default {
 				hid append routes "+ service File_system"
 				hid append routes "  + child fs"
 			}
 
-			if {$label == "fonts"} {
+			if {$name == "fonts"} {
 				_instantiate_fonts_fs start_nodes archives modules
 			} else {
-				_instantiate_file_system $name $label $writeable start_nodes archives modules
+				_instantiate_file_system $start_name $name $writeable start_nodes archives modules
 			}
 		}
 
@@ -237,16 +248,22 @@ proc bind_required_services { &services } {
 	# add mesa gpu route if required by runtime
 	if {[info exists services(rom)]} {
 		set services(rom) [lmap rom_node ${services(rom)} {
-			node with-attribute $rom_node "label" label {
-				if {$label == "mesa_gpu.lib.so"} {
-					hid append routes "+ service ROM | label: mesa_gpu.lib.so" 
-					hid append routes "  + parent | label: mesa_gpu-softpipe.lib.so"
 
-					lappend modules mesa_gpu-softpipe.lib.so
-
-					return -code continue
-				}
+			set rom_name ""
+			node with-attribute $rom_node "name" name {
+				set rom_name $name
+			} with-attribute $rom_node "label" label {
+				set rom_name $label
 			} default { }
+
+			if {$rom_name == "mesa_gpu.lib.so"} {
+				hid append routes "+ service ROM | label: mesa_gpu.lib.so" 
+				hid append routes "  + parent | label: mesa_gpu-softpipe.lib.so"
+
+				lappend modules mesa_gpu-softpipe.lib.so
+
+				continue
+			}
 
 			set rom_node
 		}]
@@ -258,7 +275,12 @@ proc bind_required_services { &services } {
 	set clipboard_report_node ""
 	if {[info exists services(rom)]} {
 		set services(rom) [lmap rom_node ${services(rom)} {
-			node with-attribute $rom_node "label" label {
+			node with-attribute $rom_node "name" name {
+				if {$name == "clipboard"} {
+					set clipboard_rom_node $rom_node
+					return -code continue
+				}
+			} with-attribute $rom_node "label" label {
 				if {$label == "clipboard"} {
 					set clipboard_rom_node $rom_node
 					return -code continue
@@ -270,7 +292,12 @@ proc bind_required_services { &services } {
 	}
 	if {[info exists services(report)]} {
 		set services(report) [lmap report_node ${services(report)} {
-			node with-attribute $report_node "label" label {
+			node with-attribute $report_node "name" name {
+				if {$name == "clipboard"} {
+					set clipboard_report_node $report_node
+					return -code continue
+				}
+			} with-attribute $report_node "label" label {
 				if {$label == "clipboard"} {
 					set clipboard_report_node $report_node
 					return -code continue
@@ -295,7 +322,11 @@ proc bind_required_services { &services } {
 	if {[info exists services(rom)]} {
 		set provided_external_rom 0
 		set services(rom) [lmap rom_node $services(rom) {
-			node with-attribute $rom_node "label" label {
+			node with-attribute $rom_node "name" name {
+				hid append routes "+ service ROM | label: $name | + child rom"
+				incr provided_external_rom
+				return -code continue
+			} with-attribute $rom_node "label" label {
 				hid append routes "+ service ROM | label: $label | + child rom"
 				incr provided_external_rom
 				return -code continue
@@ -512,7 +543,7 @@ proc _instantiate_network { tap_name subnet_id &start_nodes &archives &modules &
 }
 
 
-proc _instantiate_uplink_client { uplink_label &start_nodes &archives &modules } {
+proc _instantiate_uplink_client { uplink_name &start_nodes &archives &modules } {
 	upvar 1 ${&start_nodes} start_nodes
 	upvar 1 ${&archives} archives
 	upvar 1 ${&modules} modules
@@ -523,8 +554,8 @@ proc _instantiate_uplink_client { uplink_label &start_nodes &archives &modules }
 	                       "  + binary linux_nic" \
 	                       "  + provides | + service Uplink" \
 	                       
-	if {$uplink_label != ""} {
-		hid append start_nodes "  + config | tap: $uplink_label" }
+	if {$uplink_name != ""} {
+		hid append start_nodes "  + config | tap: $uplink_name" }
 
 	hid append start_nodes "  + route" \
 	                       "    + service Uplink | + child $project_name" \
@@ -560,21 +591,21 @@ proc _instantiate_fonts_fs { &start_nodes &archives &modules } {
 }
 
 
-proc _instantiate_file_system { name label writeable &start_nodes &archives &modules } {
+proc _instantiate_file_system { start_name name writeable &start_nodes &archives &modules } {
 	upvar 1 ${&start_nodes} start_nodes
 	upvar 1 ${&archives} archives
 	upvar 1 ${&modules} modules
 
 	global config::var_dir config::run_as
 
-	# make sure label is not empty
-	if {$label == ""} { set label "_" }
+	# make sure name is not empty
+	if {$name == ""} { set name "_" }
 
-	hid append start_nodes "+ start $name | caps: 100 | ld: no | ram: 1M" \
+	hid append start_nodes "+ start $start_name | caps: 100 | ld: no | ram: 1M" \
 	                       "  + binary lx_fs" \
 	                       "  + provides | + service File_system" \
 	                       "  + config" \
-	                       "    + default-policy | root: /fs/$label" \
+	                       "    + default-policy | root: /fs/$name" \
 	                       "                     | writeable: $writeable" \
 	                       "  + route" \
 	                       "    + service PD  | + parent" \
@@ -583,7 +614,7 @@ proc _instantiate_file_system { name label writeable &start_nodes &archives &mod
 	                       "    + service ROM | + parent"
 
 	# create folder in var_dir
-	set fs_dir [file safe-join $var_dir fs $label]
+	set fs_dir [file safe-join $var_dir fs $name]
 	if {![file isdirectory $fs_dir]} {
 		log "creating file-system directory $fs_dir"
 		file mkdir $fs_dir

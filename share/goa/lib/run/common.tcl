@@ -296,7 +296,11 @@ proc generate_runtime_config { runtime_file &runtime_archives &rom_modules } {
 			hid append blackhole_provides "+ service $cased_name"
 
 			foreach service_node $required_services($service) {
-				node with-attribute $service_node "label" label {
+				node with-attribute $service_node "name" name {
+					hid append routes "+ service $cased_name | label_last: $name | + child black_hole"
+
+					log "routing '$service \"$name\"' requirement to black-hole component"
+				} with-attribute $service_node "label" label {
 					hid append routes "+ service $cased_name | label_last: $label | + child black_hole"
 
 					log "routing '$service label: \"$label\"' requirement to black-hole component"

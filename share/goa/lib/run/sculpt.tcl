@@ -182,23 +182,31 @@ proc bind_required_services { &services } {
 	##
 	# instantiate fonts_fs
 	if {[info exists services(file_system)]} {
-		set unknown_fs_label 0
+		set unknown_fs_name 0
 		foreach fs_node $services(file_system) {
 			variable label
-			node with-attribute $fs_node "label" label {
+
+			node with-attribute $fs_node "name" name {
+				if {$name == "fonts"} {
+					hid append routes "+ service File_system | label_prefix: fonts ->" \
+					                  "  + child fonts_fs"
+				} else {
+					set unknown_fs_name 1
+				}
+			} with-attribute $fs_node "label" label {
 				if {$label == "fonts"} {
 					hid append routes "+ service File_system | label_prefix: fonts ->" \
 					                  "  + child fonts_fs"
 				} else {
-					set unknown_fs_label 1
+					set unknown_fs_name 1
 				}
 			} default {
-				set unknown_fs_label 1
+				set unknown_fs_name 1
 			}
 		}
 
 		# unsetting prevents that a generic parent route is added below
-		if {!$unknown_fs_label} {
+		if {!$unknown_fs_name} {
 			unset services(file_system)
 		}
 	}
@@ -206,24 +214,30 @@ proc bind_required_services { &services } {
 	##
 	# route known ROMs by label
 	if {[info exists services(rom)]} {
-		set unknown_rom_label 0
+		set unknown_rom_name 0
 		set known_roms [list clipboard platform_info capslock]
 		foreach rom_node $services(rom) {
 			variable label
-			node with-attribute $rom_node "label" label {
+			node with-attribute $rom_node "name" name {
+				if {[lsearch -exact $known_roms $name] > -1} {
+					hid append routes "+ service ROM | label: $name" \
+					                  "  + parent | label: $name"
+				} else {
+					set unknown_rom_name 1
+				}
+			} with-attribute $rom_node "label" label {
 				if {[lsearch -exact $known_roms $label] > -1} {
 					hid append routes "+ service ROM | label: $label" \
 					                  "  + parent | label: $label"
 				} else {
-					set unknown_rom_label 1
+					set unknown_rom_name 1
 				}
-				
 			} default {
-				set unknown_rom_label 1
+				set unknown_rom_name 1
 			}
 		}
 
-		if {$unknown_rom_label} {
+		if {$unknown_rom_name} {
 			hid append routes "+ service ROM | + parent" }
 
 		unset services(rom)
@@ -233,26 +247,34 @@ proc bind_required_services { &services } {
 	##
 	# route known Reports by label
 	if {[info exists services(report)]} {
-		set unknown_report_label 0
+		set unknown_report_name 0
 		set known_reports [list clipboard shape]
 		foreach report_node $services(report) {
 			variable label
-			node with-attribute $report_node "label" label {
+			node with-attribute $report_node "name" name {
+				if {[lsearch -exact $known_reports $name] > -1} {
+					hid append routes "+ service Report | label: $name" \
+					                  "  + parent | label: $name"
+					_instantiate_fonts_fs start_nodes archives modules
+				} else {
+					set unknown_report_name 1
+				}
+			} with-attribute $report_node "label" label {
 				if {[lsearch -exact $known_reports $label] > -1} {
 					hid append routes "+ service Report | label: $label" \
 					                  "  + parent | label: $label"
 					_instantiate_fonts_fs start_nodes archives modules
 				} else {
-					set unknown_report_label 1
+					set unknown_report_name 1
 				}
 				
 			} default {
-				set unknown_report_label 1
+				set unknown_report_name 1
 			}
 		}
 
 		# unsetting prevents that a generic parent route is added below
-		if {!$unknown_report_label} {
+		if {!$unknown_report_name} {
 			unset services(report)
 		}
 	}

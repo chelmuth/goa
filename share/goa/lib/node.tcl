@@ -116,7 +116,11 @@ namespace eval node {
 
 		if {!$found} {
 			if {[llength $args] > 0} {
-				uplevel 1 node $args
+				catch {
+					uplevel 1 node $args
+				} result options
+				dict incr options -level
+				return -options $options $result
 			} else {
 				return -code error -errorcode ATTRIBUTE_MISSING "Missing attribute $tag"
 			}
