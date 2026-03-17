@@ -32,8 +32,9 @@ The _runtime_ node may further contain the following sub nodes:
 
 :requires: A list of the required services. Each required service is a
   dedicated sub node. The type of the sub node is the lowercased name of the
-  session interface, e.g. _file_system_ for a File_system session or _gui_
-  for a Gui session. Note that CPU, PD, LOG and RM are always granted and thus
+  session interface, e.g. _gui_ for a Gui session. The only exception is
+  the File_system session, for which the abbreviated node type _fs_ is used.
+  Note that CPU, PD, LOG and RM are always granted and thus
   do not need to be mentioned here.
 
 :provides: A list of services provided by the component.
@@ -42,7 +43,7 @@ The _runtime_ node may further contain the following sub nodes:
   top-level node has a _config_ attribute.
 
 :content: A list of required ROM modules. Each ROM module is specified by a
-  '+ rom | label: ...' sub node.
+  '+ rom ...' sub node whose name attribute determines the ROM label.
 
 
 EXAMPLES
@@ -55,7 +56,7 @@ of a single component with an empty configuration and no required services:
 ! runtime | ram: 1M | caps: 1000 | binary: hello
 ! + config
 ! + content
-!   + rom | label: hello
+!   + rom hello
 ! -
 
 A more advanced scenario resides at
@@ -64,8 +65,8 @@ binary to create a subsystem comprising multiple components:
 
 ! runtime | ram: 10M | caps: 1000 | binary: init
 ! + content
-!   + rom | label: init
-!   + rom | label: hello
+!   + rom init
+!   + rom hello
 ! + config
 !   + parent-provides
 !   | + service ROM

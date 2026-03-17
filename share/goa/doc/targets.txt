@@ -40,14 +40,14 @@ the _runtime_ file's _requires_ node:
 :rtc:
   Any required _Rtc_ service is routed to a linux_rtc component.
 
-:file_system | label: <label> | writeable: no:
-  If <label> equals "fonts", a _File_system" requirement is routed to a
+:fs <name> | writeable: no:
+  If <name> equals "fonts", a _File_system" requirement is routed to a
   fonts_fs component.
   For any other required _File_system_ a separate lx_fs component is added to
   the runtime and configured to provide access to the host directory
-  _var/projects/<project_name>/fs/<label>_.
+  _var/projects/<project_name>/fs/<name>_.
 
-:nic | label: <label> | tap_name: <tap_name>:
+:nic <name> | tap_name: <tap_name>:
   Required _Nic_ services are tied to a tap device on the host by adding a
   linux_nic and a nic_router to the runtime. The linux_nic is configured
   to use the tap device _<tap_name>_ (if provided, otherwise _tap0_) and
@@ -66,16 +66,16 @@ the _runtime_ file's _requires_ node:
 :gpu:
   Any required _Gpu_ service is routed to a black-hole component.
 
-:rom | label: mesa_gpu.lib.so:
+:rom mesa_gpu.lib.so:
   The _mesa_gpu.lib.so_ _ROM_ requirement is routed to the
   _mesa_gpu-softpipe.lib_ ROM module.
 
-:rom | label: clipboard:
+:rom clipboard:
   The clipboard _ROM_ requirement is routed to a report_rom component.
 
-:report | label: <label>:
-  If <label> equals "clipboard", a _Report_ requirement is routed to a report_rom
-  component. For any other label, the Report service is routed to a black-hole
+:report <name>:
+  If <name> equals "clipboard", a _Report_ requirement is routed to a report_rom
+  component. For any other name, the Report service is routed to a black-hole
   component.
 
 :audio_in and audio_out:
@@ -97,7 +97,7 @@ the _runtime_ file's _requires_ node:
 The _linux_ target evaluates the following services mentioned in
 the _runtime_ file's _provides_ node:
 
-:uplink | label: <tap-name>:
+:uplink <tap-name>:
   For the first provided _Uplink_ service a linux_nic component is added to
   the runtime and configured to use the tap device <tap-name>.
 
@@ -147,7 +147,7 @@ may set in your goarc file or provide as command-line arguments
 The _sculpt_ target routes all runtime-required services to the parent except
 for the following:
 
-:file_system | label="fonts":
+:fs fonts:
   This requirement is routed to a dedicates fonts_fs component.
 
 
