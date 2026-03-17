@@ -16,8 +16,11 @@ schema runtime
 + category service
   + node audio_in
   + node audio_out
+  + node fs
+    + attr name      | type: any  | default:
+    + attr label     | type: any  | default: | . deprecated, use 'name'
+    + attr writeable | type: bool | default:
   + node file_system
-    + attr name      | type: any  | default: | . deprecated, use 'name'
     + attr label     | type: any  | default:
     + attr writeable | type: bool | default:
   + node framebuffer

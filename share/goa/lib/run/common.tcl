@@ -16,6 +16,39 @@ proc _find_rom_in_archives { rom_name binary_archives } {
 }
 
 
+proc _base_services { } { return [list CPU PD LOG RM] }
+
+proc _known_services { type } {
+	set other_services [list Audio_in Audio_out Uplink Nic Capture Event Gui TRACE \
+	                         Block Platform IO_MEM IO_PORT IRQ File_system Timer \
+	                         Rtc Gpu Report ROM Usb Terminal VM Pin_ctrl Pin_state \
+	                         Play Record]
+
+	set all_services [concat [_base_services] $other_services]
+
+	switch $type {
+		name { return [list                 {*}$all_services  File_system] }
+		node { return [list {*}[string tolower $all_services] fs]          }
+		default { exit_with_error "_known_services called with invalid argument" }
+	}
+}
+
+
+proc _service_node_to_name { node } {
+	set service_names [_known_services name]
+	set service_nodes [_known_services node]
+
+	return [lindex $service_names [lsearch -exact -nocase $service_nodes $node]]
+}
+
+
+proc _service_cased_name { name } {
+	set service_names [_known_services name]
+
+	return [lindex $service_names [lsearch -exact -nocase $service_names $name]]
+}
+
+
 ##
 ##
 # Acquire config
@@ -118,38 +151,38 @@ proc _validate_init_config { config &required_services &provided_services } {
 # Acquire list of required and provided services (as node objects)
 # This procedure also conducts a couple of sanity checks on the way.
 #
-proc _acquire_services { known_services runtime_file config } {
+proc _acquire_services { runtime_file config } {
+	set known_service_nodes [_known_services node]
+
 	# get required services from runtime file
 	array set required_services { }
 
 	set data [query optional-node $runtime_file "runtime | + requires"]
 	node for-all-nodes $data type node {
-		if {![info exists required_services($type)]} {
-			set required_services($type) { } }
+		if {[lsearch -exact $known_service_nodes $type] == -1} {
+			exit_with_error "runtime requires unknown '$type'" }
 
-		lappend required_services($type) $node
-	}
+		set name [string tolower [_service_node_to_name $type]]
 
-	# check that all required services are known
-	foreach service_name [array names required_services] {
-		if {[lsearch -exact $known_services $service_name] == -1} {
-			exit_with_error "runtime requires unknown '$service_name'" }
+		if {![info exists required_services($name)]} {
+			set required_services($name) { } }
+
+		lappend required_services($name) $node
 	}
 
 	# get provided services from runtime file
 	array set provided_services { }
 	set data [query optional-node $runtime_file "runtime | + provides"]
 	node for-all-nodes $data type node {
-		if {![info exists provided_services($type)]} {
-			set provided_services($type) { } }
+		if {[lsearch -exact $known_service_nodes $type] == -1} {
+			exit_with_error "runtime requires unknown '$type'" }
 
-		lappend provided_services($type) $node
-	}
+		set name [string tolower [_service_node_to_name $type]]
 
-	# check that all provided services are known
-	foreach service_name [array names provided_services] {
-		if {[lsearch -exact $known_services $service_name] == -1} {
-			exit_with_error "runtime provides unknown '$service_name'" }
+		if {![info exists provided_services($name)]} {
+			set provided_services($name) { } }
+
+		lappend provided_services($name) $node
 	}
 
 	try {
@@ -185,32 +218,19 @@ proc generate_runtime_config { runtime_file &runtime_archives &rom_modules } {
 	# get config (as node object) from runtime file
 	lassign [_acquire_config $runtime_file $runtime_archives] config config_route
 
-	# list of services that are do not need to mentioned as requirement
-	set base_services   [list CPU PD LOG RM]
-
-	# remaining services
-	set other_services [list Audio_in Audio_out Uplink Nic Capture Event Gui TRACE \
-	                         Block Platform IO_MEM IO_PORT IRQ File_system Timer \
-	                         Rtc Gpu Report ROM Usb Terminal VM Pin_ctrl Pin_state \
-	                         Play Record]
-
-	# all known services
-	set known_services [concat $base_services $other_services]
-
 	# services supported by black_hole component
 	set blackhole_supported_services [list report audio_in audio_out event \
 	                                       capture gpu usb uplink play record]
 
 	# check and acquire required/provided services from runtime file
-	lassign [_acquire_services [string tolower $known_services] \
-	                           $runtime_file $config] required provided
+	lassign [_acquire_services $runtime_file $config] required provided
 
 	array set required_services $required
 	array set provided_services $provided
 
 	# warn if base services are mentioned as requirements
 	foreach service_name [array names required_services] {
-		if {[lsearch -exact -nocase $base_services $service_name] > -1} {
+		if {[lsearch -exact -nocase [_base_services] $service_name] > -1} {
 			log "runtime explicitly requires '$service_name', which is always routed" }
 	}
 
@@ -263,8 +283,7 @@ proc generate_runtime_config { runtime_file &runtime_archives &rom_modules } {
 
 	# add provided services
 	foreach service_name [array names provided_services] {
-		set cased_name [lindex $known_services [lsearch -exact -nocase $known_services $service_name]]
-		hid append provides "+ service $cased_name"
+		hid append provides "+ service [_service_cased_name $service_name]"
 	}
 
 	# bind provided services
@@ -275,7 +294,9 @@ proc generate_runtime_config { runtime_file &runtime_archives &rom_modules } {
 	lappend rom_modules      {*}[lindex $_res 3]
 
 	foreach service [array names provided_services] {
-		log "runtime-declared provided '$service' will be ignored" }
+		foreach service_node $provided_services($service) {
+			log "runtime-declared provided '[hid first [hid format $service_node]]' will be ignored" }
+	}
 
 	# bind services by target-specific implementation
 	set _res [bind_required_services required_services]
@@ -292,22 +313,22 @@ proc generate_runtime_config { runtime_file &runtime_archives &rom_modules } {
 		if {[llength $required_services($service)] == 0} { continue }
 
 		if {[lsearch -exact $blackhole_supported_services $service] > -1} {
-			set cased_name [lindex $known_services [lsearch -exact -nocase $known_services $service]]
+			set service_name [_service_cased_name $service]
 
 			hid append blackhole_config   "+ $service"
-			hid append blackhole_provides "+ service $cased_name"
+			hid append blackhole_provides "+ service $service_name"
 
 			foreach service_node $required_services($service) {
 				node with-attribute $service_node "name" name {
-					hid append routes "+ service $cased_name | label_last: $name | + child black_hole"
+					hid append routes "+ service $service_name | label_last: $name | + child black_hole"
 
 					log "routing '$service \"$name\"' requirement to black-hole component"
 				} with-attribute $service_node "label" label {
-					hid append routes "+ service $cased_name | label_last: $label | + child black_hole"
+					hid append routes "+ service $service_name | label_last: $label | + child black_hole"
 
 					log "routing '$service label: \"$label\"' requirement to black-hole component"
 				} default {
-					hid append routes "+ service $cased_name | + child black_hole"
+					hid append routes "+ service $service_name | + child black_hole"
 
 					log "routing '$service' requirement to black-hole component"
 				}
