@@ -5,8 +5,17 @@ proc create_or_update_build_dir { } {
 	global cppflags cflags cxxflags spec_args
 	global env cmake_quirk_args
 	global config::build_dir project_dir config::abi_dir
-	global config::cross_dev_prefix config::include_dirs project_name
+	global config::cross_dev_prefix project_name
 	global api_dirs
+
+	# check whether CMakeLists.txt modifies CMAKE_MODULE_PATH
+	set     check_modules_cmd grep
+	lappend check_modules_cmd set\(CMAKE_MODULE_PATH
+	lappend check_modules_cmd [file join $project_dir src CMakeLists.txt]
+	if {[exec_status $check_modules_cmd] == 0} {
+		exit_with_error "src/CMakeLists.txt sets CMAKE_MODULE_PATH, which must be" \
+		                "\nsolely managed by Goa. Please patch the file accordingly."
+	}
 
 	if {![file exists $build_dir]} {
 		file mkdir $build_dir }
