@@ -139,7 +139,7 @@ foreach abi $abis {
 	if {$abi != "so"} {
 		lappend ldlibs_exe "-l:$abi.lib.so"
 	}
-	if {$abi != "ld" && $abi != "so"} {
+	if {$abi != "ld" && $abi != "so" && $abi != "posix"} {
 		lappend ldlibs_so "-l:$abi.lib.so"
 	}
 }
