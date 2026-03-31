@@ -21,7 +21,7 @@ proc stacktrace { } {
 
 
 proc exit_with_error { args } {
-	global verbose
+	global verbose project_name
 
 	if {[info exists project_name]} {
 		puts -nonewline stderr "\[$project_name\] " }
@@ -37,7 +37,7 @@ proc exit_with_error { args } {
 # Print diagnostic message in verbose mode
 #
 proc diag { args } {
-	global verbose
+	global verbose project_name
 
 	if {$verbose} {
 		if {[info exists project_name]} {
@@ -52,6 +52,7 @@ proc diag { args } {
 # Unconditionally print message, prefixed with the project name
 #
 proc log { args } {
+	global project_name
 
 	if {[info exists project_name]} {
 		puts -nonewline "\[$project_name\] " }
