@@ -47,21 +47,29 @@ the _runtime_ file's _requires_ node:
   the runtime and configured to provide access to the host directory
   _var/projects/<project_name>/fs/<name>_.
 
-:nic <name> | tap_name: <tap_name>:
-  Required _Nic_ services are tied to a tap device on the host by adding a
-  linux_nic and a nic_router to the runtime. The linux_nic is configured
-  to use the tap device _<tap_name>_ (if provided, otherwise _tap0_) and
-  connects to the uplink domain of the Nic router. The latter is configured as a
-  DHCP client for its uplink interface and as a DHCP server for its default
-  domain. Each nic_router will use a distinct subnet for its default domain,
-  starting from 10.0.10.0/24 and ending at 10.0.255.0/24. For every distinct tap
-  device in use, only a single pair of linux_nic and nic_router will be
-  instantiated.
+:nic <name>:
+  For every required _Nic_ service, a linux_slirp_nic and nic_router is
+  added to the runtime. The Nic router acts as a DHCP client on its uplink
+  interface, which is connected to linux_slirp_nic, and as a DHCP server for
+  its default domain. Each Nic router will use a distinct subnet for its
+  default domain, starting from 10.0.10.0/24 and ending at 10.0.255.0/24.
 
   A _nic_ node may contain an arbitrary number of _tcp-forward_ and
-  _udp-forward_ nodes, which are added to the Nic router_s uplink domain.
+  _udp-forward_ nodes, which are added to the Nic router's uplink domain.
   Any additional _policy_ and _domain_ nodes are added to the Nic router's.
   config.
+
+  The provided forwarding rules are also applied to linux_slirp_nic so that the
+  corresponding port on the host system is forwarded to the uplink interface
+  of the Nic router.
+
+  If a _tap_name_ attribute is present for the _nic_ node, the _Nic_ service
+  is tied to tap device on the host by using linux_nic (instead of
+  linux_slirp_nic). The linux_nic is configured to use the tap device
+  _<tap_name>_.
+
+  For every distinct tap device in use, only a single pair of linux_nic and
+  nic_router will be instantiated.
 
 :gpu:
   Any required _Gpu_ service is routed to a black-hole component.

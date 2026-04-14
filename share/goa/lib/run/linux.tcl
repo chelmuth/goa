@@ -149,27 +149,31 @@ proc bind_required_services { &services } {
 			log "Ignoring duplicate 'nic' requirements" }
 
 		set subnet_id 10
-		array set networks { }
+		array set tap_networks   { }
 		foreach nic_node $nic_services_unique {
 
+			set router_name { }
 			node with-attribute $nic_node "tap_name" value {
 				set tap_name $value
+
+				# use the same router for the same tap_name
+				if {![info exists tap_networks($tap_name)]} {
+					set tap_networks($tap_name) [_instantiate_network_tap $tap_name $subnet_id \
+					                                                      start_nodes archives \
+					                                                      modules nic_node]
+					incr subnet_id
+				}
+
+				set router_name $tap_networks($tap_name)
 			} default {
-				set tap_name "tap0"
-				set nic_node_short [hid first [hid format $nic_node]]
-				log "Binding '$nic_node_short' to tap device '$tap_name'." \
-				    "You can change the used tap device by adding a 'tap_name' attribute."
-			}
-
-			if {![info exists networks($tap_name)]} {
-				set networks($tap_name) [_instantiate_network $tap_name $subnet_id \
-				                                              start_nodes archives \
-				                                              modules nic_node]
-
+				# instantiate a new router for every nic requirement
+				set router_name [_instantiate_network_slirp $subnet_id start_nodes archives \
+				                                            modules nic_node]
 				incr subnet_id
-				if {$subnet_id > 255} {
-					exit_with_error "Too many 'nic' requirements" }
 			}
+
+			if {$subnet_id > 255} {
+				exit_with_error "Too many 'nic' requirements" }
 
 			node with-attribute $nic_node "name" nic_name {
 				hid append routes "+ service Nic | label: $nic_name"
@@ -178,7 +182,7 @@ proc bind_required_services { &services } {
 			} default {
 				hid append routes "+ service Nic"
 			}
-			hid append routes "  + child $networks($tap_name)"
+			hid append routes "  + child $router_name"
 		}
 
 		unset services(nic)
@@ -471,7 +475,7 @@ proc _instantiate_nitpicker { &start_nodes &archives &modules } {
 }
 
 
-proc _instantiate_network { tap_name subnet_id &start_nodes &archives &modules &nic_node } {
+proc _instantiate_network_tap { tap_name subnet_id &start_nodes &archives &modules &nic_node } {
 	upvar 1 ${&start_nodes} start_nodes
 	upvar 1 ${&archives} archives
 	upvar 1 ${&modules} modules
@@ -537,6 +541,92 @@ proc _instantiate_network { tap_name subnet_id &start_nodes &archives &modules &
 	lappend modules linux_nic nic_router
 
 	lappend archives "$genodelabs/src/linux_nic"
+	lappend archives "$genodelabs/src/nic_router"
+
+	return $router_name
+}
+
+
+proc _instantiate_network_slirp { subnet_id &start_nodes &archives &modules &nic_node } {
+	upvar 1 ${&start_nodes} start_nodes
+	upvar 1 ${&archives} archives
+	upvar 1 ${&modules} modules
+	upvar 1 ${&nic_node} nic_node
+
+	global genodelabs
+
+	set driver_name nic_$subnet_id
+	set router_name nic_router_$subnet_id
+
+	set forward_rules [hid create]
+	set hostfwd_rules [hid create]
+
+	node for-each-node $nic_node "tcp-forward" rule {
+		hid append forward_rules [hid format $rule]
+		node with-attribute $rule "port" port {
+			hid append hostfwd_rules "+ tcp_forward" \
+			                         "| port: $port" \
+			                         "| to:   10.1.$subnet_id.15"
+		}
+	}
+
+	node for-each-node $nic_node "udp-forward" rule {
+		hid append forward_rules [hid format $rule]
+		node with-attribute $rule "port" port {
+			hid append hostfwd_rules "+ udp_forward" \
+			                         "| port: $port" \
+			                         "| to:   10.1.$subnet_id.15"
+		}
+	}
+
+	set extra_domains [hid create]
+	node for-each-node $nic_node "domain" domain {
+		hid append extra_domains [hid format $domain] }
+
+	set extra_policies [hid create]
+	node for-each-node $nic_node "policy" policy {
+		hid append extra_policies [hid format $policy] }
+
+	hid append start_nodes "+ start $driver_name | caps: 100 | ld: no | ram: 4M" \
+	                       "  + binary linux_slirp_nic" \
+	                       "  + provides | + service Nic" \
+	                       "  + config | network: 10.1.$subnet_id.0" \
+	                       [hid indent 2 $hostfwd_rules] \
+	                       "  + route" \
+	                       "    + service Uplink | + child $router_name" \
+	                       "    + any-service | + parent" \
+	                       "+ start $router_name | caps: 200 | ram: 10M" \
+	                       "  + binary nic_router" \
+	                       "  + provides" \
+	                       "    + service Uplink" \
+	                       "    + service Nic" \
+	                       "  + config | verbose_domain_state: yes" \
+	                       "    + default-policy | domain: default" \
+	                       "    + policy | label_prefix: $driver_name -> | domain: uplink" \
+	                       [hid indent 2 $extra_policies] \
+	                       "    + domain uplink" \
+	                       "      + nat | domain: default" \
+	                       "            | tcp-ports: 1000" \
+	                       "            | udp-ports: 1000" \
+	                       "            | icmp-ids:  1000" \
+	                       [hid indent 3 $forward_rules] \
+	                       "    + domain default | interface: 10.0.$subnet_id.1/24" \
+	                       "      + dhcp-server | ip_first: 10.0.$subnet_id.2" \
+	                       "                    | ip_last:  10.0.$subnet_id.253" \
+	                       "                    | dns_config_from: uplink" \
+	                       "      + tcp | dst: 0.0.0.0/0" \
+	                       "        + permit-any | domain: uplink" \
+	                       "      + udp | dst: 0.0.0.0/0" \
+	                       "        + permit-any | domain: uplink" \
+	                       "      + icmp | dst: 0.0.0.0/0 | domain: uplink" \
+	                       [hid indent 2 $extra_domains] \
+	                       "  + route" \
+	                       "    + service Timer | + child timer" \
+	                       "    + any-service | + parent"
+
+	lappend modules linux_slirp_nic nic_router
+
+	lappend archives "$genodelabs/src/linux_slirp_nic"
 	lappend archives "$genodelabs/src/nic_router"
 
 	return $router_name
