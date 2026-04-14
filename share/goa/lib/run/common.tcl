@@ -383,7 +383,7 @@ proc generate_runtime_config { runtime_file &runtime_archives &rom_modules } {
 
 	hid append start_nodes "+ start $project_name | caps: $caps | ram: $ram" \
 	                       "  + binary $binary" \
-	                       $provides \
+	                       [hid indent 1 $provides] \
 	                       "  + route" [hid indent 2 $routes] \
 	                       [hid indent 1 [hid format $inline_config]]
 

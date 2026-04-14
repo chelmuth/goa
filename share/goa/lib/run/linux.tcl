@@ -53,36 +53,7 @@ proc cpu_route { } { return "+ parent" }
 
 
 proc bind_provided_services { &services } {
-	# use upvar to access array
-	upvar 1 ${&services} services
-
-	# make sure to declare variables locally
-	variable start_nodes routes archives modules
-
-	set start_nodes [hid create]
-	set routes      [hid create]
-	set archives    { }
-	set modules     { }
-
-	# instantiate NIC driver in uplink mode if required by runtime
-	if {[info exists services(uplink)]} {
-		if { [llength ${services(uplink)}] > 1 } {
-			log "Ignoring all but the first provided 'uplink' service." }
-
-		node with-attribute [lindex ${services(uplink)} 0] "name" uplink_name {
-			_instantiate_uplink_client $uplink_name start_nodes archives modules
-		} with-attribute [lindex ${services(uplink)} 0] "label" uplink_label {
-			_instantiate_uplink_client $uplink_label start_nodes archives modules
-		} default {
-			_instantiate_uplink_client "" start_nodes archives modules
-		}
-
-		hid append routes "+ service Uplink"
-
-		unset services(uplink)
-	}
-
-	return [list $start_nodes $routes $archives $modules]
+	return [list { } { } { } { }]
 }
 
 
@@ -630,30 +601,6 @@ proc _instantiate_network_slirp { subnet_id &start_nodes &archives &modules &nic
 	lappend archives "$genodelabs/src/nic_router"
 
 	return $router_name
-}
-
-
-proc _instantiate_uplink_client { uplink_name &start_nodes &archives &modules } {
-	upvar 1 ${&start_nodes} start_nodes
-	upvar 1 ${&archives} archives
-	upvar 1 ${&modules} modules
-
-	global project_name genodelabs
-
-	hid append start_nodes "+ start nic | caps: 100 | ld: no | ram: 4M" \
-	                       "  + binary linux_nic" \
-	                       "  + provides | + service Uplink" \
-	                       
-	if {$uplink_name != ""} {
-		hid append start_nodes "  + config | tap: $uplink_name" }
-
-	hid append start_nodes "  + route" \
-	                       "    + service Uplink | + child $project_name" \
-	                       "    + any-service | + parent"
-
-	lappend modules linux_nic
-
-	lappend archives "$genodelabs/src/linux_nic"
 }
 
 

@@ -138,13 +138,6 @@ proc cpu_route { } {
 
 
 proc bind_provided_services { &services } {
-	# use upvar to access array
-	upvar 1 ${&services} services
-
-	# instantiate NIC driver in uplink mode if required by runtime
-	foreach name [array names services] {
-		log "Ignoring provided '$name' service." }
-
 	return [list { } { } { } { }]
 }
 

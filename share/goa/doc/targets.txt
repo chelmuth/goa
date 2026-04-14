@@ -102,14 +102,6 @@ the _runtime_ file's _requires_ node:
   Any required _Uplink_ service is routed to a black-hole component.
 
 
-The _linux_ target evaluates the following services mentioned in
-the _runtime_ file's _provides_ node:
-
-:uplink <tap-name>:
-  For the first provided _Uplink_ service a linux_nic component is added to
-  the runtime and configured to use the tap device <tap-name>.
-
-
 sculpt
 ======
 
