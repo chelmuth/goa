@@ -455,7 +455,7 @@ proc _instantiate_network_tap { tap_name subnet_id &start_nodes &archives &modul
 	global genodelabs
 
 	set driver_name nic_$tap_name
-	set router_name nic_router_$tap_name
+	set router_name network_$tap_name
 
 	set forward_rules [hid create]
 
@@ -527,7 +527,7 @@ proc _instantiate_network_slirp { subnet_id &start_nodes &archives &modules &nic
 	global genodelabs
 
 	set driver_name nic_$subnet_id
-	set router_name nic_router_$subnet_id
+	set router_name network_$subnet_id
 
 	set forward_rules [hid create]
 	set hostfwd_rules [hid create]
