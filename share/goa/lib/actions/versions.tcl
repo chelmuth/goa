@@ -1,4 +1,4 @@
-##
+#used_apis#
 # Version-related actions (require project directory)
 #
 
@@ -10,15 +10,39 @@ namespace eval goa {
 	# 
 	proc used_apis { } {
 
+		global   genodelabs
 		variable _used_apis
 
 		if {![info exists _used_apis]} {
 			set _used_apis [apply_versions [read_file_content_as_list used_apis]]
+
+			# replace 'genodelabs' with $genodelabs (overwritten by --genodelabs-user)
+			set _used_apis [lmap a $_used_apis { regsub genodelabs/ $a $genodelabs/ }]
+
 			if {[llength $_used_apis] > 0} {
 				diag "used APIs: $_used_apis" }
 		}
 
 		return $_used_apis
+	}
+
+
+	##
+	# Return list of unversioned archives referenced by pkg/archives file
+	# 
+	proc archives { } {
+
+		global   genodelabs
+		variable _archives
+
+		if {![info exists _archives]} {
+			set _archives [read_file_content_as_list [file join pkg archives]]
+
+			# replace 'genodelabs' with $genodelabs (overwritten by --genodelabs-user)
+			set _archives [lmap a $_archives { regsub genodelabs/ $a $genodelabs/ }]
+		}
+
+		return $_archives
 	}
 
 

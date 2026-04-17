@@ -302,6 +302,16 @@ Optional Arguments and Configuration Overrides
   may locate dependent projects. This can be changed by setting the
   _search_dir_ variable; see *goa help config* for further details.
 
+:--genodelabs-user:
+  The *goa run* command requires several archives from the official genodelabs
+  depot. These archives are updated and published along with every Sculpt OS
+  release. The archive versions stored in Goa are updated accordingly.
+  By specifying *--genodelabs-user <name>*, you may load the required archives
+  from your own depot instead. This is best combined with
+  *--versions-from-genode-dir*; see *goa help config* for further details.
+  The *--genodelabs-user* argument also affects the archives specified in
+  a project's _used_apis_ and _archives_ files.
+
 :-r:
   Recursively scan for project directories in the current working directory
   and execute the command for each project. By default, test projects are

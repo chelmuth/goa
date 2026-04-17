@@ -24,7 +24,6 @@ namespace eval ::config {
 	variable depot_retain             0
 	variable license                  ""
 	variable depot_user               "_"
-	variable run_as                   "genodelabs"
 	variable target                   "linux"
 	variable sculpt_version           ""
 	variable toolchain_version        ""
@@ -210,6 +209,11 @@ namespace eval ::config {
 		if {$name == "project_name" || $name == "project_dir"} {
 			exit_with_error "Setting '$name' in $rcfile has been deprecated." }
 
+		if {$name == "run_as"} {
+			exit_with_error "Setting '$name' in $rcfile has been deprecated." \
+			                "Please use the command-line option '--genodelabs-user' instead."
+		}
+
 		if {![info exists ::config::[lindex [split $name "("] 0]]} {
 			diag "variable '$name' defined in $rcfile is not a config variable"
 			return
@@ -376,7 +380,6 @@ namespace eval ::config {
 		variable cross_dev_prefix
 		variable ld_march
 		variable cc_march
-		variable run_as
 		variable binary_name
 		variable var_dir
 		variable toolchain_version
@@ -389,7 +392,6 @@ namespace eval ::config {
 		if {$cross_dev_prefix         == ""} { unset cross_dev_prefix }
 		if {$ld_march                 == ""} { unset ld_march }
 		if {$cc_march                 == ""} { unset cc_march }
-		if {$run_as                   == ""} { unset run_as }
 		if {$binary_name              == ""} { unset binary_name }
 
 		if {![info exists arch]} {

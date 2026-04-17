@@ -106,11 +106,11 @@ proc parent_services { } {
 
 
 proc base_archives { } {
-	global config::run_as config::target config::target_opt
+	global genodelabs config::target config::target_opt
 
 	if {[info exists target_opt($target-kernel)]} {
 		set kernel $target_opt($target-kernel)
-		return [list "$run_as/src/base-$kernel"]
+		return [list "$genodelabs/src/base-$kernel"]
 	}
 
 	return {}
@@ -298,7 +298,7 @@ proc _instantiate_fonts_fs { &start_nodes &archives &modules } {
 	upvar 1 ${&archives} archives
 	upvar 1 ${&modules} modules
 
-	global config::run_as
+	global genodelabs
 
 	hid append start_nodes "+ start fonts_fs | caps: 100 | ram: 2M" \
 	                       "  + binary vfs" \
@@ -313,5 +313,5 @@ proc _instantiate_fonts_fs { &start_nodes &archives &modules } {
 
 	lappend modules vfs fonts_fs.config
 
-	lappend archives $run_as/pkg/fonts_fs
+	lappend archives $genodelabs/pkg/fonts_fs
 }

@@ -164,6 +164,12 @@ diag "process project '$project_name' with arguments: $argv"
 config load_goarc_files
 
 #
+# This global variable allows replacing all archives from the genodelabs
+# depot with archives from another user.
+# 
+set genodelabs "genodelabs"
+
+#
 # Override values with command-line arguments
 #
 # Change to the original PWD to resolve relative path names correctly.
@@ -338,7 +344,8 @@ if {$perform(build-dir)} {
 
 if {$perform(run-dir)} {
 	set config::target [consume_optional_cmdline_arg "--target" $config::target]
-	set config::run_as [consume_optional_cmdline_arg "--run-as" $config::run_as]
+	if {[consume_optional_cmdline_arg "--run-as" ""] != ""} {
+		exit_with_error "The '--run-as' option has been removed in favor of '--genodelabs-user'." }
 }
 
 if {$perform(build)} {
@@ -358,6 +365,10 @@ if {$perform(build)} {
 
 	set config::olevel     [consume_optional_cmdline_arg "--olevel"     $config::olevel]
 	set config::depot_user [consume_optional_cmdline_arg "--depot-user" $config::depot_user]
+
+	set genodelabs [consume_optional_cmdline_arg "--genodelabs-user" $genodelabs]
+	if {$genodelabs != "genodelabs"} {
+		diag "Using depot archives from user '$genodelabs' instead of 'genodelabs'" }
 }
 
 if {$perform(export)} {

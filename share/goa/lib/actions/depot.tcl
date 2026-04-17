@@ -441,9 +441,7 @@ namespace eval goa {
 		set runtime_archives { }
 
 		# add archives specified at the pkg's 'archives' file
-		set archives_file [file join pkg archives]
-		if {[file exists $archives_file]} {
-			set runtime_archives [apply_versions [read_file_content_as_list $archives_file]] }
+		set runtime_archives [apply_versions [archives]]
 
 		# automatically add the project's local raw and src archives
 		set raw_dir [file join $project_dir raw]

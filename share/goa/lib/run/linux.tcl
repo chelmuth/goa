@@ -40,9 +40,9 @@ proc parent_services { } {
 
 
 proc base_archives { } {
-	global config::run_as
+	global genodelabs
 
-	return [list "$run_as/src/base-linux" "$run_as/src/init"]
+	return [list "$genodelabs/src/base-linux" "$genodelabs/src/init"]
 }
 
 
@@ -369,7 +369,7 @@ proc _instantiate_nitpicker { &start_nodes &archives &modules } {
 	upvar 1 ${&archives} archives
 	upvar 1 ${&modules} modules
 
-	global config::run_as
+	global genodelabs
 
 	hid append start_nodes "+ start drivers | caps: 1000" \
 	                       "                | ram: 36M" \
@@ -464,10 +464,10 @@ proc _instantiate_nitpicker { &start_nodes &archives &modules } {
 	                report_rom \
 	                rom_filter
 
-	lappend archives "$run_as/src/nitpicker"
-	lappend archives "$run_as/src/report_rom"
-	lappend archives "$run_as/src/rom_filter"
-	lappend archives "$run_as/pkg/drivers_interactive-linux"
+	lappend archives "$genodelabs/src/nitpicker"
+	lappend archives "$genodelabs/src/report_rom"
+	lappend archives "$genodelabs/src/rom_filter"
+	lappend archives "$genodelabs/pkg/drivers_interactive-linux"
 }
 
 
@@ -477,7 +477,7 @@ proc _instantiate_network { tap_name subnet_id &start_nodes &archives &modules &
 	upvar 1 ${&modules} modules
 	upvar 1 ${&nic_node} nic_node
 
-	global config::run_as
+	global genodelabs
 
 	set driver_name nic_$tap_name
 	set router_name nic_router_$tap_name
@@ -536,8 +536,8 @@ proc _instantiate_network { tap_name subnet_id &start_nodes &archives &modules &
 
 	lappend modules linux_nic nic_router
 
-	lappend archives "$run_as/src/linux_nic"
-	lappend archives "$run_as/src/nic_router"
+	lappend archives "$genodelabs/src/linux_nic"
+	lappend archives "$genodelabs/src/nic_router"
 
 	return $router_name
 }
@@ -548,7 +548,7 @@ proc _instantiate_uplink_client { uplink_name &start_nodes &archives &modules } 
 	upvar 1 ${&archives} archives
 	upvar 1 ${&modules} modules
 
-	global project_name config::run_as
+	global project_name genodelabs
 
 	hid append start_nodes "+ start nic | caps: 100 | ld: no | ram: 4M" \
 	                       "  + binary linux_nic" \
@@ -563,7 +563,7 @@ proc _instantiate_uplink_client { uplink_name &start_nodes &archives &modules } 
 
 	lappend modules linux_nic
 
-	lappend archives "$run_as/src/linux_nic"
+	lappend archives "$genodelabs/src/linux_nic"
 }
 
 
@@ -572,7 +572,7 @@ proc _instantiate_fonts_fs { &start_nodes &archives &modules } {
 	upvar 1 ${&archives} archives
 	upvar 1 ${&modules} modules
 
-	global config::run_as
+	global genodelabs
 
 	hid append start_nodes "+ start fonts_fs | caps: 100 | ram: 2M" \
 	                       "  + binary vfs" \
@@ -587,7 +587,7 @@ proc _instantiate_fonts_fs { &start_nodes &archives &modules } {
 	                       
 	lappend modules vfs fonts_fs.config
 
-	lappend archives $run_as/pkg/fonts_fs
+	lappend archives $genodelabs/pkg/fonts_fs
 }
 
 
@@ -596,7 +596,7 @@ proc _instantiate_file_system { start_name name writeable &start_nodes &archives
 	upvar 1 ${&archives} archives
 	upvar 1 ${&modules} modules
 
-	global config::var_dir config::run_as
+	global config::var_dir genodelabs
 
 	# make sure name is not empty
 	if {$name == ""} { set name "_" }
@@ -622,7 +622,7 @@ proc _instantiate_file_system { start_name name writeable &start_nodes &archives
 
 	lappend modules lx_fs
 
-	lappend archives "$run_as/src/lx_fs"
+	lappend archives "$genodelabs/src/lx_fs"
 }
 
 
@@ -631,7 +631,7 @@ proc _instantiate_rom_provider { &start_nodes &archives &modules } {
 	upvar 1 ${&archives} archives
 	upvar 1 ${&modules} modules
 
-	global config::run_as config::var_dir
+	global genodelabs config::var_dir
 
 	hid append start_nodes "+ start rom_fs | caps: 100 | ld: no | ram: 1M" \
 	                       "  + binary lx_fs" \
@@ -664,8 +664,8 @@ proc _instantiate_rom_provider { &start_nodes &archives &modules } {
 
 	lappend modules fs_rom lx_fs
 
-	lappend archives $run_as/src/fs_rom
-	lappend archives $run_as/src/lx_fs
+	lappend archives $genodelabs/src/fs_rom
+	lappend archives $genodelabs/src/lx_fs
 }
 
 
@@ -674,7 +674,7 @@ proc _instantiate_rtc { &start_nodes &archives &modules } {
 	upvar 1 ${&archives} archives
 	upvar 1 ${&modules} modules
 
-	global config::run_as
+	global genodelabs
 
 	hid append start_nodes "+ start rtc | caps: 100 | ld: no | ram: 1M" \
 	                       "  + binary linux_rtc" \
@@ -683,7 +683,7 @@ proc _instantiate_rtc { &start_nodes &archives &modules } {
 
 	lappend modules linux_rtc
 
-	lappend archives "$run_as/src/linux_rtc"
+	lappend archives "$genodelabs/src/linux_rtc"
 }
 
 
@@ -692,7 +692,7 @@ proc _instantiate_clipboard { &start_nodes &archives &modules } {
 	upvar 1 ${&archives} archives
 	upvar 1 ${&modules} modules
 
-	global project_name config::run_as
+	global project_name genodelabs
 
 	hid append start_nodes "+ start clipboard | caps: 100 | ram: 2M" \
 	                       "  + binary report_rom" \
@@ -709,5 +709,5 @@ proc _instantiate_clipboard { &start_nodes &archives &modules } {
 	                       "    + service ROM | + parent"
 	lappend modules report_rom
 
-	lappend archives "$run_as/src/report_rom"
+	lappend archives "$genodelabs/src/report_rom"
 }

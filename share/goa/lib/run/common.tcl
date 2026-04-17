@@ -205,8 +205,8 @@ proc generate_runtime_config { runtime_file &runtime_archives &rom_modules } {
 	upvar 1 ${&runtime_archives} runtime_archives
 	upvar 1 ${&rom_modules} rom_modules
 
-	global project_name
-	global config::run_dir config::var_dir config::run_as config::bin_dir
+	global project_name genodelabs
+	global config::run_dir config::var_dir config::bin_dir
 
 
 	try {
@@ -353,7 +353,7 @@ proc generate_runtime_config { runtime_file &runtime_archives &rom_modules } {
 
 		lappend rom_modules black_hole
 
-		lappend runtime_archives "$run_as/src/black_hole"
+		lappend runtime_archives "$genodelabs/src/black_hole"
 	}
 
 	set inline_config {}

@@ -74,8 +74,7 @@ namespace eval goa {
 			exit_with_error "no runtime defined at $pkg_dir" }
 	
 		# install depot content needed according to the pkg's archives definition
-		set archives_file [file join $pkg_dir archives]
-		set runtime_archives [read_file_content_as_list $archives_file]
+		set runtime_archives [archives]
 	
 		# init empty run directory
 		if {[file exists $run_dir]} {

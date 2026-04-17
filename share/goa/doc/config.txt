@@ -153,14 +153,6 @@ Goa evaluates the following configuration variables.
   and name. Note that the *publish* command requires a depot user other than
   "_".
 
-:run_as:
-  The *goa run* command requires several archives from the official genodelabs
-  depot. These archives are updated and published along with every Sculpt OS
-  release. The archive versions stored in Goa are updated accordingly.
-  By setting the *run_as* variable to your depot user name or by specifying
-  the *--run-as <name>* argument, you may load the required archives from your
-  own depot instead.
-
 :license:
   When exporting a source archive to a depot, Goa supplements a license
   file to the source archive, which is expected to be located as a file
@@ -244,7 +236,7 @@ Goa evaluates the following configuration variables.
   versions from the depot recipes stored in the Genode source tree.
   Since the corresponding archives are likely not available in the official
   genodelabs depot, you probably want to guide Goa to your personal depot by
-  setting the _run_as_ variable.
+  using the *--genodelabs-user* command-line option.
 
 :update_index:
   If set to 1, Goa downloads depot index files in order to acquire version
