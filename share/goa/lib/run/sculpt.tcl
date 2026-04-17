@@ -180,16 +180,18 @@ proc bind_required_services { &services } {
 			variable label
 
 			node with-attribute $fs_node "name" name {
-				if {$name == "fonts"} {
-					hid append routes "+ service File_system | label_prefix: fonts ->" \
-					                  "  + child fonts_fs"
+				if {$name == "font" || $name == "fonts"} {
+					hid append routes "+ service File_system | label_prefix: $name ->" \
+					                  "  + child font"
+					_instantiate_font start_nodes archives modules
 				} else {
 					set unknown_fs_name 1
 				}
 			} with-attribute $fs_node "label" label {
-				if {$label == "fonts"} {
-					hid append routes "+ service File_system | label_prefix: fonts ->" \
-					                  "  + child fonts_fs"
+				if {$label == "font" || $label == "fonts"} {
+					hid append routes "+ service File_system | label_prefix: $label ->" \
+					                  "  + child font"
+					_instantiate_font start_nodes archives modules
 				} else {
 					set unknown_fs_name 1
 				}
@@ -248,7 +250,6 @@ proc bind_required_services { &services } {
 				if {[lsearch -exact $known_reports $name] > -1} {
 					hid append routes "+ service Report | label: $name" \
 					                  "  + parent | label: $name"
-					_instantiate_fonts_fs start_nodes archives modules
 				} else {
 					set unknown_report_name 1
 				}
@@ -256,7 +257,6 @@ proc bind_required_services { &services } {
 				if {[lsearch -exact $known_reports $label] > -1} {
 					hid append routes "+ service Report | label: $label" \
 					                  "  + parent | label: $label"
-					_instantiate_fonts_fs start_nodes archives modules
 				} else {
 					set unknown_report_name 1
 				}
@@ -286,25 +286,25 @@ proc bind_required_services { &services } {
 }
 
 
-proc _instantiate_fonts_fs { &start_nodes &archives &modules } {
+proc _instantiate_font { &start_nodes &archives &modules } {
 	upvar 1 ${&start_nodes} start_nodes
 	upvar 1 ${&archives} archives
 	upvar 1 ${&modules} modules
 
 	global genodelabs
 
-	hid append start_nodes "+ start fonts_fs | caps: 100 | ram: 2M" \
+	hid append start_nodes "+ start font | caps: 100 | ram: 2M" \
 	                       "  + binary vfs" \
 	                       "  + provides | + service File_system" \
 	                       "  + route" \
 	                       "    + service ROM | label: config" \
-	                       "      + parent | label: fonts_fs.config" \
+	                       "      + parent | label: font.config" \
 	                       "    + service PD  | + parent" \
 	                       "    + service CPU | + parent" \
 	                       "    + service LOG | + parent" \
 	                       "    + service ROM | + parent"
 
-	lappend modules vfs fonts_fs.config
+	lappend modules vfs font.config
 
-	lappend archives $genodelabs/pkg/fonts_fs
+	lappend archives $genodelabs/pkg/font
 }
