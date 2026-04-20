@@ -181,9 +181,7 @@ namespace eval goa {
 		if {[looks_like_goa_project_dir $project_dir]} {
 			puts "\n#\n# depot-archive versions referenced by $project_dir\n#"
 			set archives [read_file_content_as_list used_apis]
-			set archive_files [glob -nocomplain [file join $project_dir pkg * archives]]
-			foreach file $archive_files {
-				set archives [concat $archives [read_file_content_as_list $file]] }
+			set archives [concat $archives [read_file_content_as_list [file join pkg archives]]]
 
 			set index_file [file join $project_dir index]
 			if {[file exists $index_file] && [info exists depot_user]} {
@@ -200,7 +198,7 @@ namespace eval goa {
 			}
 		}
 
-			puts "\n#\n# additional depot-archive versions from goarc\n#"
+		puts "\n#\n# additional depot-archive versions from goarc\n#"
 		if {[info exists version]} {
 			foreach archive [array names version] {
 				if {[lsearch -exact $archives $archive] < 0} {
