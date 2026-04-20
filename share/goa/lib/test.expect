@@ -40,9 +40,9 @@ set test_output(cmake_library)       {libforty_two.lib.so}
 set test_output(qt5_core)            {\[init -> qt5_core\] Test done.}
 set test_output(hello_rust)          {\[init -> hello_rust\] Hello Genode Rust world!}
 set test_output(cmake_sdl2)          {\[init\] child "cmake_sdl2" exited with exit value 0}
-set test_output(vfs/1-fs_query)      {\[init -> 1-fs_query -> report_rom\]   </listing>}
+set test_output(vfs/1-fs_query)      {\+ forward | to: 10.0.0.1}
 set test_output(vfs/2-import)        {child "2-import" exited with exit value 0}
-set test_output(vfs/3-vfs_server)    {<file name="verbose" size="2">no</file>}
+set test_output(vfs/3-vfs_server)    {\+ file verbose | size: 2}
 set test_output(vfs/4-rump_ext2)     {Hello!Hello!}
 set test_output(vfs/5-pipe)          {Hi, this is a pipe test!}
 set test_output(vfs/6-terminal)      {Hi, this is a terminal test!}
