@@ -49,6 +49,8 @@ DEPENDENCIES_CMD := $(DEPOT_TOOL_DIR)/dependencies DEPOT_DIR="$(DEPOT_DIR)" \
                                                    DBG="$(DBG)" \
                                                    $(MAKECMDGOALS)
 DEPENDENCIES_RESULT := $(shell $(DEPENDENCIES_CMD) 2> /dev/null || true)
+DEPENDENCIES_RESULT := $(foreach A,$(DEPENDENCIES_RESULT),\
+  $(if $(call archive_has_type,$A,index),,$A))
 endif
 
 DEPENDENCIES_MISSING := $(sort $(foreach A, $(DEPENDENCIES_RESULT),\
