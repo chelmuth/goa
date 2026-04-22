@@ -22,6 +22,7 @@ namespace eval gaol {
 	# makeargs | dict of make variables
 	# chdir    | initial working directory
 	# dirs     | list of paths
+	# overlays | list of paths
 	# verbose  | boolean
 	# network  | boolean
 	# make     | boolean
@@ -31,6 +32,7 @@ namespace eval gaol {
 	# no_bwrap | boolean
 	variable state [dict create env [dict create] \
 	                            robinds {} binds {} symlinks {} dirs {} \
+	                            overlays {} \
 	                            verbose 0 network 0 make 0 no_bwrap 0]
 
 	proc --disable-sandbox { args } {
@@ -118,6 +120,19 @@ namespace eval gaol {
 
 		variable state
 		dict lappend state dirs $path
+		gaol::parse_next args
+	}
+
+	proc --tmp-overlay { path args } {
+		gaol::validate_no_opt $path
+
+		if {![gaol::validate_version 0.11.0]} {
+			puts "\[gaol\] warning: ignoring --tmp-overlay $path because it requires bwrap >= 0.11.0"
+		} else {
+			variable state
+			dict lappend state overlays $path
+		}
+
 		gaol::parse_next args
 	}
 
@@ -305,6 +320,39 @@ namespace eval gaol {
 		] "\n"]
 	}
 
+	proc validate_version { minimum_version } {
+		global   bwrap_version
+		variable state
+
+		# always succeed if sandboxing is disabled
+		if {[dict get $state no_bwrap]} {
+			set bwrap_version $minimum_version }
+
+		# get bwrap version
+		if {![info exists bwrap_version]} {
+			if {[auto_execok "bwrap"] == ""} {
+				puts stderr "\n'bwrap' binary not found. Please install bubblewrap!\n"
+				exit 1
+			}
+
+			set bwrap_version [lindex [exec bwrap --version] 1]
+		}
+
+		# compare version strings
+		set expected  [split [string trim $minimum_version] "."]
+		set installed [split [string trim $bwrap_version]   "."]
+		foreach e $expected i $installed {
+			if {[expr $i < $e]} {
+				return false }
+
+			if {[expr $i > $e]} {
+				return true }
+		}
+
+		# bwrap_version == minimum_version
+		return true
+	}
+
 	proc validate_no_opt { arg } {
 		if { $arg == "" } { return }
 
@@ -471,6 +519,9 @@ namespace eval gaol {
 
 			foreach {to from} $symlinks {
 				lappend bwrap_cmd --symlink $to $from }
+
+			foreach path $overlays {
+				lappend bwrap_cmd --overlay-src $path --tmp-overlay $path }
 
 			if {[info exists chdir]} {
 				lappend bwrap_cmd --chdir $chdir

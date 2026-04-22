@@ -106,6 +106,7 @@ proc create_or_update_build_dir { } {
 	set source_dir [file join $project_dir src]
 
 	set     cmd [sandboxed_build_command]
+	lappend cmd --tmp-overlay $source_dir
 	lappend cmd meson
 	lappend cmd "setup"
 
