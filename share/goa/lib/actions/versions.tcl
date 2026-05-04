@@ -46,10 +46,16 @@ namespace eval goa {
 	}
 
 
-	proc _bump_with_suffix { target_version current_version } {
-		
-		if {[string first $target_version $current_version] == 0} {
-			set elements [split $current_version -]
+	proc _bump_with_prefix_and_suffix { target_version current_version } {
+
+		# find prefix
+		set prefix ""
+		set main_part $current_version
+		regexp {^((?:\d+\.)+\d+-)(.*)} $current_version dummy prefix main_part
+
+		# find, and add or increment suffix
+		if {[string first $target_version $main_part] == 0} {
+			set elements [split $main_part -]
 			set suffix [lindex $elements end]
 			if {[llength $elements] > 3 && [regexp {[a-y]} $suffix dummy]} {
 				# bump suffix
@@ -57,11 +63,11 @@ namespace eval goa {
 				set target_version [join [lreplace $elements end end $new_suffix] -]
 			} else {
 				# add suffix
-				set target_version "$current_version-a"
+				set target_version "$main_part-a"
 			}
 		}
 
-		return $target_version
+		return $prefix$target_version
 	}
 
 
@@ -141,7 +147,7 @@ namespace eval goa {
 				set old_version ""
 			} on error { msg }   { error $msg $::errorInfo }
 
-			set target_version [_bump_with_suffix $target_version $old_version]
+			set target_version [_bump_with_prefix_and_suffix $target_version $old_version]
 
 			set fd [open $version_file w]
 			puts $fd $target_version
@@ -162,7 +168,7 @@ namespace eval goa {
 				set archive "$depot_user/$type/$project_name"
 				set archive_version [archive_version [apply_versions $archive]]
 				if {!$skip_bump} {
-					set archive_version [_bump_with_suffix $target_version $archive_version]}
+					set archive_version [_bump_with_prefix_and_suffix $target_version $archive_version]}
 
 				log "set version($archive) $archive_version"
 			}
