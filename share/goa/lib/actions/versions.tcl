@@ -46,12 +46,94 @@ namespace eval goa {
 	}
 
 
-	proc bump-version { target_version } {
+	proc _bump_with_suffix { target_version current_version } {
+		
+		if {[string first $target_version $current_version] == 0} {
+			set elements [split $current_version -]
+			set suffix [lindex $elements end]
+			if {[llength $elements] > 3 && [regexp {[a-y]} $suffix dummy]} {
+				# bump suffix
+				set new_suffix [format %c [expr [scan $suffix %c]+1]]
+				set target_version [join [lreplace $elements end end $new_suffix] -]
+			} else {
+				# add suffix
+				set target_version "$current_version-a"
+			}
+		}
 
+		return $target_version
+	}
+
+
+	proc _for_each_archive_type { &type body } {
 		global project_dir
 
+		upvar ${&type} type
+		
+		set api_file [file join $project_dir api]
+		if {[file exists $api_file] && [file isfile $api_file]} {
+			set type "api"
+			uplevel 1 $body
+		}
+
+		set src_dir [file join $project_dir src]
+		if {[file exists $src_dir] && [file isdirectory $src_dir]} {
+			set type "src"
+			uplevel 1 $body
+		}
+
+		set raw_dir [file join $project_dir raw]
+		if {[file exists $raw_dir] && [file isdirectory $raw_dir]} {
+			set type "raw"
+			uplevel 1 $body
+		}
+
+		set pkg_dir [file join $project_dir pkg]
+		if {[file exists $pkg_dir] && [file isdirectory $pkg_dir]} {
+			set type "pkg"
+			uplevel 1 $body
+		}
+	}
+	
+
+	proc bump-version { if_needed target_version } {
+
+		global project_dir project_name
+		global config::depot_user config::version
+
 		set version_file [file join $project_dir version]
+
+		# check whether any version is managed via goarc
+		set any_version_set false
+		if {![file exists $version_file]} {
+			_for_each_archive_type type {
+				if {[info exists version($depot_user/$type/$project_name)]} {
+					set any_version_set true }
+				if {[info exists version(_/$type/$project_name)]} {
+					set any_version_set true }
+			}
+		}
+
+		# return if version from version file has already been exported
 		if {[file exists $version_file]} {
+			if {$if_needed} {
+				set dummy {}
+				set status [expr [goa compare-src dummy] && \
+				                 [goa compare-raw dummy] && \
+				                 [goa compare-api dummy] && \
+				                 [goa compare-pkg dummy]]
+
+				if {$status} {
+					log "Skipping version bump"
+					return
+				} else {
+					log "Version update required"
+				}
+			}
+		}
+
+		# bump version in 'version' file
+		if {[file exists $version_file] || !$any_version_set} {
 
 			try {
 				set old_version [project_version_from_file $project_dir]
@@ -59,24 +141,32 @@ namespace eval goa {
 				set old_version ""
 			} on error { msg }   { error $msg $::errorInfo }
 
-			# version already bumped?
-			if {[string first $target_version $old_version] == 0} {
-				set elements [split $old_version -]
-				set suffix [lindex $elements end]
-				if {[llength $elements] > 3 && [regexp {[a-y]} $suffix dummy]} {
-					# bump suffix
-					set new_suffix [format %c [expr [scan $suffix %c]+1]]
-					set target_version [join [lreplace $elements end end $new_suffix] -]
-				} else {
-					# add suffix
-					set target_version "$old_version-a"
-				}
-			}
+			set target_version [_bump_with_suffix $target_version $old_version]
+
+			set fd [open $version_file w]
+			puts $fd $target_version
+			close $fd
+
+			return
 		}
 
-		set fd [open $version_file w]
-		puts $fd $target_version
-		close $fd
+		# print new versions if versions are managed via goarc
+		if {$any_version_set} {
+			_for_each_archive_type type {
+				set skip_bump false
+				if {$if_needed} {
+					set dummy {}
+					set skip_bump [goa compare-$type dummy]
+				}
+
+				set archive "$depot_user/$type/$project_name"
+				set archive_version [archive_version [apply_versions $archive]]
+				if {!$skip_bump} {
+					set archive_version [_bump_with_suffix $target_version $archive_version]}
+
+				log "set version($archive) $archive_version"
+			}
+		}
 	}
 
 

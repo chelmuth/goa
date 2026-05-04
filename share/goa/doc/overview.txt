@@ -177,11 +177,16 @@ Commands
   Show documentation about the specified pkg or src archive.
 
 :goa bump-version [--if-needed [--depot-user <user>]] [<version>]:
-  Update version file of a Goa project. If <version> is not provided, the
-  current date is taken. If the project version already matches the desired
-  date, "-a" is added as a suffix and alphabetically incremented for every
+  Update version file of a Goa project or print 'set version(...)' lines
+  for inclusion in _goarc_ files. If <version> is not provided, the
+  current date is taken. If the project's archive versions already matches the
+  desired date, "-a" is added as a suffix and alphabetically incremented for every
   version bump. When provided with the --if-needed option, the version update
   is omitted if the exported/published version is already up-to-date.
+
+  If the project directory does not contain a _version_ file and there are
+  no version definitions in any _goarc_ file that apply to the project, the
+  command will create a new _version_ file.
 
 :goa exported [--depot-user <user>]:
   Compare project status with the archives exported for <user> and
