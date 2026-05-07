@@ -15,7 +15,7 @@ set tests {
 	hello_posix
 	hello_meson
 	hello_rust:60
-	cmake_step2:40
+	cmake_step3:40
 	cmake_library
 	qt5_core:100
 	cmake_sdl2:40
@@ -35,7 +35,7 @@ set test_output(hello_make)          {\[init -> hello_make\] Hello}
 set test_output(multiple_hello_make) {\[init -> multiple_hello_make -> two\] Hello}
 set test_output(hello_posix)         {\[init -> hello_posix\] Hello POSIX}
 set test_output(hello_meson)         {\[init -> hello_meson\] Hello Meson: 42}
-set test_output(cmake_step2)         {\[init -> cmake_step2\] The square root of 24 is 4.89898}
+set test_output(cmake_step3)         {\[init -> cmake_step3\] The square root of 24 is 4.89898}
 set test_output(cmake_library)       {libforty_two.lib.so}
 set test_output(qt5_core)            {\[init -> qt5_core\] Test done.}
 set test_output(hello_rust)          {\[init -> hello_rust\] Hello Genode Rust world!}

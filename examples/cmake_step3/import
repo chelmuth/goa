@@ -1,0 +1,8 @@
+LICENSE   := BSD
+VERSION   := 4.3.2
+DOWNLOADS := cmake_step3.sparse-git
+
+URL(cmake_step3) := https://github.com/Kitware/CMake
+REV(cmake_step3) := v4.3.2
+DIR(cmake_step3) := src
+SPARSE_PATH(cmake_step3) := Help/guide/tutorial/Step3
