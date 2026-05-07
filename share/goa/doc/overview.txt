@@ -28,10 +28,10 @@ It can have the following ingredients:
 
 :import: A file that describes how 3rd-party software is downloaded and
   patched for the use with Genode. It follows the lines of Genode's
-  time-tested _ports_ tool described at
-  [https://genode.org/documentation/developer-resources/porting].
+  time-tested _ports_ tool.
   Note, import may populate _src/_ and _raw/_. It will therefore overwrite
-  any existing content in these directories.
+  any existing content in these directories. See *goa help import* for
+  further details.
 
 :src/: A directory containing source code and build instructions. Goa
   automatically detects the kind of build system used. In particular,
