@@ -46,6 +46,8 @@ The _runtime_ node may further contain the following sub nodes:
 :content: A list of required ROM modules. Each ROM module is specified by a
   '+ rom ...' sub node whose name attribute determines the ROM label.
 
+For a more detailed specification, please refer to the HSD file in
+_<goa_dir>/share/goa/hsd/pkg_runtime.hsd_.
 
 EXAMPLES
 ########

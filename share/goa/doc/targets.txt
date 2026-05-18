@@ -56,7 +56,7 @@ the _runtime_ file's _requires_ node:
 
   A _nic_ node may contain an arbitrary number of _tcp-forward_ and
   _udp-forward_ nodes, which are added to the Nic router's uplink domain.
-  Any additional _policy_ and _domain_ nodes are added to the Nic router's.
+  Any additional _policy_ and _domain_ nodes are added to the Nic router's
   config.
 
   The provided forwarding rules are also applied to linux_slirp_nic so that the
