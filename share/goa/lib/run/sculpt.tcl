@@ -33,6 +33,7 @@ proc run_genode { } {
 		set fd [open $gdb_file w]
 		puts $fd "cd $var_dir/run"
 		puts $fd "set non-stop on"
+		puts $fd "set substitute-path /data/depot-sculpt $depot_dir"
 		puts $fd "set substitute-path /data/depot $depot_dir"
 		puts $fd "set substitute-path /depot $depot_dir"
 		puts $fd "target extended-remote $host:$port_gdb"
