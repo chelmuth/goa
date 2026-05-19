@@ -14,12 +14,21 @@ proc _create_cmake_modules { } {
 			file copy $cmake_file $cmake_module_dir }
 	}
 
-	# acquire used modules from CMakeLists.txt
+	# find CMakeLists.txt files
 	try {
-		set used_cmake_modules [exec grep find_package\( [file join $project_dir src CMakeLists.txt] | sed -e {s/\s*find_package(\(\w*\).*).*/\1/}]
+		set cmake_list_files [exec find [file join $project_dir src] -name CMakeLists.txt]
 	} trap CHILDSTATUS { } {
-		set used_cmake_modules ""
+		set cmake_list_files ""
 	} on error { msg } { error $msg $::errorInfo }
+
+	# acquire used modules from all CMakeLists.txt
+	set used_cmake_modules ""
+	foreach cmake_list $cmake_list_files {
+		try {
+			append used_cmake_modules [exec grep find_package\( $cmake_list | sed -e {s/\s*find_package(\(\w*\).*).*/\1/}]
+		} trap CHILDSTATUS { } {
+		} on error { msg } { error $msg $::errorInfo }
+	}
 
 	#
 	# create missing Find*.cmake files if corresponding api is used
