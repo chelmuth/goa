@@ -38,6 +38,13 @@ adding a path to the list 'allowed_paths' as follows:
 Note that this instruction is only effective within the privileged configuration
 files at '~/goarc' and '/goarc'. It must also appear before setting any
 path configuration variable.
+:
+Every path configuration variable listed below (any variable whose name ends
+in _dir_) is also accepted as a command-line argument. The argument name is
+formed by replacing each underscore in the variable name with a dash, for
+example *--build-dir* <path> sets _build_dir_, *--depot-dir* <path> sets
+_depot_dir_, and *--common-var-dir* <path> sets _common_var_dir_.
+Command-line arguments take precedence over _goarc_ settings.
 
 
 Settings
