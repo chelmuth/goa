@@ -42,7 +42,7 @@ include $(DEPOT_TOOL_DIR)/mk/pgp.inc
 
 $(INDEX_TARGETS): $(DEPOT_DIR)/%: $(PUBLIC_DIR)/%.xz $(PUBLIC_DIR)/%.xz.sig
 	$(VERBOSE)pubkey_file=$(call pubkey_path,$*); \
-	          signed_file=$(PUBLID_DIR)/$*.xz; \
+	          signed_file=$(PUBLIC_DIR)/$*.xz; \
 	          $(verify_target) \
 	          || ( echo -e "Error: could not verify '$*', signature does not match\n" \
 	                          "      public key '$$pubkey_file'"; \
