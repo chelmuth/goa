@@ -848,8 +848,12 @@ namespace eval goa {
 			archive_parts $versioned_archive user type name vers
 
 			# try downloading first
-			if {[try_download_archives [list [apply_arch $versioned_archive $archive_arch]]]} {
-				return }
+			if {$type == "api"} {
+				if {[try_download_archives $versioned_archive]} {
+					return }
+			} elseif {[try_download_archives [list [apply_arch $versioned_archive $archive_arch]]]} {
+				return
+			}
 
 			# do not continue if archive user does not match the current depot user
 			if { $depot_user != $user } {
