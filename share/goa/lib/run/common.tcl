@@ -249,7 +249,7 @@ proc generate_runtime_config { runtime_file &runtime_archives &rom_modules } {
 	if {[lsearch -exact $rom_modules $binary] < 0 &&
 		 [lsearch -exact $default_rom_modules $binary] < 0} {
 		exit_with_error "Binary '$binary' not mentioned as content ROM module. \n" \
-		                "\n You either need to add 'rom \"$binary\"' to the content ROM list" \
+		                "\n You either need to add '+ rom $binary' to the content ROM list" \
 		                "\n or add a pkg archive to the 'archives' file from which to inherit."
 	}
 
