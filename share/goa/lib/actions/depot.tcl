@@ -67,7 +67,7 @@ namespace eval goa {
 		global argv0 config::jobs config::depot_user config::depot_dir
 		global config::versions_from_genode_dir config::public_dir config::debug
 		global config::common_var_dir config::var_dir verbose
-		global config::search_dir
+		global config::search_dir config::update_index
 
 		set dir [file fullnormalize $dir]
 
@@ -84,6 +84,9 @@ namespace eval goa {
 		lappend cmd --public-dir     $public_dir
 		if {$common_var_dir != ""} {
 			lappend cmd --common-var-dir $common_var_dir
+		}
+		if {$update_index} {
+			lappend cmd --update-index
 		}
 		if {[info exists versions_from_genode_dir]} {
 			lappend cmd --versions-from-genode-dir $versions_from_genode_dir
