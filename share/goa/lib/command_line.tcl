@@ -205,7 +205,7 @@ if {[llength $argv] == 0} {
 set avail_commands [list update-goa archive-versions backtrace import diff build-dir \
                          build run run-dir export publish add-depot-user bump-version \
                          extract-abi-symbols versions depot-dir install-toolchain info \
-                         exported published]
+                         exported published import-metadata]
 
 foreach command $avail_commands {
 	set perform($command) 0 }

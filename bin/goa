@@ -192,9 +192,8 @@ if {$perform(diff)} {
 ##
 ## Import
 ##
-if {$perform(import)} {
-	goa import
-}
+if {$perform(import)}          { goa import }
+if {$perform(import-metadata)} { goa import-metadata }
 
 
 ##

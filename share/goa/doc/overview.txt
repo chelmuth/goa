@@ -200,6 +200,10 @@ Commands
   Download and patch 3rd-party source code according to the rules given by
   an _import_ file.
 
+:goa import-metadata:
+  Prints the name, license and version of the imported 3rd-party source code
+  as defined by the _import_ file.
+
 :goa diff:
   Show local modifications of the imported 3rd-party software.
 

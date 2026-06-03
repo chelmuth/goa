@@ -3,7 +3,7 @@
 #
 
 namespace eval goa {
-	namespace export import diff
+	namespace export import diff import-metadata
 
 	proc exec_import_tool { tool args } {
 		global verbose gaol tool_dir
@@ -86,6 +86,14 @@ namespace eval goa {
 		}
 	}
 
+	proc import-metadata { } {
+		global project_name
+
+		if {![file exists import] || ![file isfile import]} {
+			exit_with_error "missing 'import' file" }
+
+		puts [exec_import_tool metadata.mk PORT_NAME=$project_name]
+	}
 
 	##
 	# Implements 'goa import'
