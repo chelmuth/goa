@@ -694,7 +694,7 @@ namespace eval goa {
 			set files { }
 			lappend files "src"
 	
-			foreach optional_file { artifacts import make_args cmake_args configure_args } {
+			foreach optional_file { artifacts import make_args cmake_args configure_args meson_args } {
 				if {[file exists $optional_file]} {
 					lappend files $optional_file } }
 	
