@@ -12,7 +12,7 @@ proc create_pkgconfig_dir { } {
 
 	file mkdir $pkgconfig_dir
 
-	log "Create pkgconfig directory: $pkgconfig_dir"
+	diag "Create pkgconfig directory: $pkgconfig_dir"
 
 	foreach api_dir $api_dirs {
 		foreach pc_file [glob -nocomplain $api_dir/*.pc] {
