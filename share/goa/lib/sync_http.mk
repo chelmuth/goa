@@ -9,11 +9,12 @@
 define HELP_MESSAGE
 
   Sync files from SRC_DIR to SERVER via HTTP PUT. TMP_DIR is used for storing
-  etags. You may provide DELETE=1 to remove the files from SERVER.
+  etags. You may provide DELETE=1 to remove the files from SERVER. You may
+  use CONFIG=filename to upload SRC_DIR/filename as a "config" file to SERVER.
 
   usage:
 
-    $(firstword $(MAKEFILE_LIST)) <file>... SRC_DIR=<path> TMP_DIR=<path> SERVER=<url> {DELETE=1}
+    $(firstword $(MAKEFILE_LIST)) <file>... SRC_DIR=<path> TMP_DIR=<path> SERVER=<url> {DELETE=1} {CONFIG=filename}
 
 endef
 
@@ -30,7 +31,7 @@ ECHO    := echo -e
 VERBOSE ?= @
 
 
-.PHONY: delete upload missing_files missing_tmp_dir missing_server missing_src_dir
+.PHONY: delete upload missing_files missing_tmp_dir missing_server missing_src_dir config
 
 ######################
 # check dependencies #
@@ -73,7 +74,8 @@ missing_src_dir: usage
 # check for missing files #
 ###########################
 
-FILES_MISSING := $(sort $(foreach F, $(MAKECMDGOALS),\
+MAKECMDGOALS := $(filter-out config,$(MAKECMDGOALS))
+FILES_MISSING := $(sort $(foreach F, $(MAKECMDGOALS) $(CONFIG),\
                            $(if $(wildcard $(addprefix $(SRC_DIR)/,$F)),,$F)))
 
 missing_files:
@@ -86,6 +88,10 @@ else ifneq ($(FILES_MISSING),)
 $(MAKECMDGOALS): missing_files
 else
 $(MAKECMDGOALS): %: upload_%
+endif
+
+ifneq ($(CONFIG),)
+$(MAKECMDGOALS): config
 endif
 
 TARGETS := $(MAKECMDGOALS)
@@ -112,6 +118,11 @@ upload_%: $(abspath $(TMP_DIR)/%.local.etag)
 		$(ECHO) "$(DARK_COL)uploaded$(DEFAULT_COL) $* (remote change)"; \
 		curl -s -f -I $(SERVER)/$* --etag-save $< -o /dev/null ; \
 	fi \
+
+# upload config file
+config: $(SRC_DIR)/$(CONFIG)
+	$(VERBOSE)curl -s -T $< $(SERVER)/config
+	$(VERBOSE)$(ECHO) "$(DARK_COL)uploaded$(DEFAULT_COL) config"
 
 # delete from server
 delete_%:

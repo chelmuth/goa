@@ -1,3 +1,10 @@
+proc _upload_config { cmd config_name } {
+	diag "clearing config on server via: $cmd config CONFIG=$config_name"
+	if {[catch { exec {*}$cmd config CONFIG=$config_name >@stdout} msg]} {
+		exit_with_error $msg }
+}
+
+
 proc run_genode { } {
 	global tool_dir
 	global config::run_dir config::var_dir config::target config::target_opt
@@ -40,33 +47,31 @@ proc run_genode { } {
 		close $fd
 	}
 
-	# create lambda to make config-deletion command re-usable
-	set clear_config {{cmd} {
-		diag "deleting config from server via: $cmd config DELETE=1"
-		if {[catch { exec {*}$cmd config DELETE=1 >@stdout} msg]} {
-			exit_with_error $msg }
-	}}
-
 	set     cmd "make"
 	lappend cmd "-f" [file join $tool_dir lib sync_http.mk]
 	lappend cmd "TMP_DIR=[file join $var_dir targets $target]"
 	lappend cmd "SRC_DIR=$run_dir"
 	lappend cmd "SERVER=http://$host:$port_http"
 
+	# generate empty config
+	set fd [open $run_dir/config.empty "WRONLY CREAT TRUNC"]
+	puts $fd "config\n-"
+	close $fd
+
 	# make sure the remote config is empty
-	apply $clear_config $cmd
+	_upload_config $cmd config.empty
 
 	# sync all files expect config
 	set modules [glob -type f -directory $run_dir -tails *]
 	set modules [lsearch -inline -all -not -exact $modules config]
+	set modules [lsearch -inline -all -not -exact $modules config.empty]
 	diag "uploading modules to server via: $cmd $modules"
 	if {[catch { exec {*}$cmd {*}$modules >@ stdout} msg]} {
 		exit_with_error $msg }
 	
 	# sync config and thereby start the scenario
-	diag "uploading config to server via: $cmd config"
-	if {[catch { exec {*}$cmd config >@stdout} msg]} {
-		exit_with_error $msg }
+	diag "uploading config to server"
+	_upload_config $cmd config
 
 	# spawn optional command if target-opt-sculpt-cmd is set
 	if {[info exists target_opt($target-cmd)]} {
@@ -86,8 +91,7 @@ proc run_genode { } {
 	interact {
 		\003 {
 			send_user "Expect: 'interact' received 'strg+c' and was cancelled\n";
-			# delete config on remote target
-			apply $clear_config $cmd
+			_upload_config $cmd config.empty
 			return
 		}
 		-i $spawn_id
