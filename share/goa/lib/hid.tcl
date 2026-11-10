@@ -140,9 +140,9 @@ namespace eval hid {
 			set hid [lmap line $hid {
 				if {$line == "HID"} {
 					set line }
-				string cat "  " $line
+				string cat "  " [string trimright $line]
 			}]
-			lset hid 1 [string cat "+ " $first]
+			lset hid 1 [string cat "+ " [string trim $first]]
 		}
 	}
 
@@ -213,7 +213,7 @@ namespace eval hid {
 				_make_child arg
 				lappend hid {*}[_raw $arg]
 			} else {
-				lappend hid $arg
+				lappend hid [string trimright $arg]
 			}
 		}
 	}
@@ -229,7 +229,7 @@ namespace eval hid {
 		set indentation [string repeat "  " $level]
 		set data [hid create]
 		foreach line [_raw $hid] {
-			lappend data [string cat $indentation $line]
+			lappend data [string cat $indentation [string trimright $line]]
 		}
 
 		return $data
