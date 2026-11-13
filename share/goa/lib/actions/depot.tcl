@@ -379,7 +379,7 @@ namespace eval goa {
 			exit_with_error "Archive '$versioned_archive' does not contain a README file" }
 
 		set     cmd [file join $tool_dir gosh gosh]
-		lappend cmd --style man --style info --version $vers --archive $archive [lindex $candidates 0]| man -l -
+		lappend cmd --style man --style info --version $vers --archive $archive [lindex $candidates 0] | man -l -
 		exec {*}$cmd >@ stdout 2>@ stderr
 	}
 

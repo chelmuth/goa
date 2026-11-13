@@ -240,6 +240,7 @@ action_dependency build-dir       install-toolchain
 action_dependency build-dir       depot-dir
 action_dependency add-depot-user  depot-dir
 action_dependency published       exported
+action_dependency info            depot-dir
 
 if {[file exists import] && [file type import] == "file"} {
 	action_dependency build-dir import }
